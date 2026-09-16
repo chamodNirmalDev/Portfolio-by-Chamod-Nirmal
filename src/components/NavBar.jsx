@@ -10,7 +10,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
         { name: 'Home', link: '#home', icon: FaHome },
         { name: 'About', link: '#about', icon: FaUser },
         { name: 'Skills', link: '#skills', icon: FaCode },
-        { name: 'Certificates', link: '#Certificates', icon: FaCertificate },
+        { name: 'Certificates', link: '#certificates', icon: FaCertificate },
         { name: 'Projects', link: '#Projects', icon: FaProjectDiagram },
         { name: 'Contacts', link: '#Contacts', icon: FaEnvelope },
     ]
