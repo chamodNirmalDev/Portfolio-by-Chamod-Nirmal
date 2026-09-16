@@ -40,7 +40,7 @@ const About = () => {
     ]
 
     return (
-        <section id='about' className='min-h-screen flex items-center py-20 px-4 sm:px-6 overflow-hidden relative'>
+        <section id='about' className='min-h-screen flex items-center py-20 pt-2 px-4 sm:px-6 overflow-hidden relative'>
 
             <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10'>
 
@@ -65,7 +65,10 @@ const About = () => {
 
                     {/* යාවත්කාලීන කළ වෘත්තීය විස්තර ඡේදය */}
                     <p className='text-base lg:text-lg mb-8 leading-relaxed dark:text-gray-300 text-gray-700 max-w-xl'>
-                        I am a dedicated Software Engineering student and a passionate freelance full-stack developer based in Sri Lanka. My expertise spans across React.js, Java, and modern web technologies, allowing me to build everything from dynamic web platforms to scalable applications. Whether it's crafting intuitive user interfaces or designing secure backend architectures, I am committed to delivering high-quality, user-centric solutions.
+                        I am a dedicated Software Engineering student and a passionate freelance full-stack developer based in Sri Lanka.
+                         My expertise spans across React.js, Java, and modern web technologies, allowing me to build everything from dynamic
+                          web platforms to scalable applications. Whether it's crafting intuitive user interfaces or designing secure backend
+                           architectures, I am committed to delivering high-quality, user-centric solutions.
                     </p>
 
                     {/* සමාජ මාධ්‍ය බොත්තම් පෙළගැස්ම */}

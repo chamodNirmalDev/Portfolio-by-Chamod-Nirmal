@@ -16,7 +16,7 @@ const Hero = () => {
 
     return (
         // පහළින් ඇති Navbar එකට ඉඩ දීම සඳහා pb-28 (Padding Bottom) අලුතින් එකතු කර ඇත
-        <section id='home' className='min-h-screen flex items-center relative overflow-hidden pb-28 lg:pb-20'>
+        <section id='home' className='min-h-screen flex items-center pb-24 sm:pb-24 relative overflow-hidden'>
             <div className='container mx-auto px-4 sm:px-8 lg:px-14 py-12 lg:mt-14 relative z-10'>
                 <div className='flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16'>
                     
