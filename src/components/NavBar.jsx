@@ -12,7 +12,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
         { name: 'Skills', link: '#skills', icon: FaCode },
         { name: 'Certificates', link: '#certificates', icon: FaCertificate },
         { name: 'Projects', link: '#projects', icon: FaProjectDiagram },
-        { name: 'Contacts', link: '#Contacts', icon: FaEnvelope },
+        { name: 'Contacts', link: '#contacts', icon: FaEnvelope },
     ]
     return (
         <div className='fixed z-50 bottom-0 left-0 right-0 flex justify-center'>
