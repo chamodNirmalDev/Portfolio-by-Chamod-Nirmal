@@ -1,5 +1,5 @@
 import React from "react";
-import CertificateImg from '../assets/hero.png';
+import CertificateImg from '../assets/certificates.png';
 import { motion } from 'framer-motion';
 import { Award, Calendar, ExternalLink } from "lucide-react";
 
