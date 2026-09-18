@@ -6,6 +6,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
 import Certificate from './components/Certificates';
+import Project from './components/Projects';
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -41,6 +42,7 @@ const App = () => {
       <About/>
       <Skills/>
       <Certificate/>
+      <Project/>
     </div>
   )
 }
