@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import { FaGithub, FaHeart, FaLinkedin, FaLock, FaTwitter } from 'react-icons/fa'
+import { FaCog, FaGithub, FaHeart, FaLinkedin, FaLock, FaTwitter } from 'react-icons/fa'
 
 const Footer = () => {
     const currentYear = new Date().getFullYear()
@@ -47,8 +47,8 @@ const Footer = () => {
                              */}
                     <Link 
                         to='/admin' 
-                        className='hover:text-teal-500 dark:hover:text-emerald-400 transition-colors ml-2'>
-                        <FaLock size={18} />
+                        className='hover:text-teal-500 dark:hover:text-emerald-400 transition-colors'>
+                        <FaCog size={20} />
                     </Link>
                 </div>
 
