@@ -69,7 +69,7 @@ const App = () => {
               element={<AdminLogin/>} : මෙතැනදී අපි දීලා තියෙන්නේ <AdminLogin/> කියන අලුතින් හදපු Component එක විතරයි. ඔයාට පේනවා ඇති මෙතන <Navbar/> වත් <Footer/> වත් වෙන මුකුත්වත් නැහැ.
               ප්‍රතිඵලය: ඔයා Admin පිටුවට ගියාම, අර ප්‍රධාන වෙබ් අඩවියේ තිබ්බ කිසිම දෙයක් පේන්නේ නැහැ. සම්පූර්ණයෙන්ම හිස් තිරයක ඔයාගේ "Admin Portal" කියන කොටු පෙනුම (Login Form එක) විතරක් දිස්වෙනවා.*/}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard/>}/>
+        <Route path="/admin/dashboard" element={<AdminDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>}/>
       </Routes>
       {/* සාරාංශය:
 මේ කේතයෙන් වෙබ් අඩවිය ප්‍රධාන කොටස් දෙකකට වෙන් කරනවා. එකක් හැමෝටම පේන Portfolio එක, අනිත් එක ඔයාට විතරක් ලොග් වෙන්න පුළුවන් Admin ලොගින් පිටුව. මේ දෙක එකිනෙකාට බාධා කරගන්නේ නැතුව වැඩ කරන්නේ මේ කේතය නිසයි. */}

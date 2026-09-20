@@ -85,7 +85,7 @@ const AdminLogin = () => {
               type="text"
               className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-teal-200 dark:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Enter username"
-              required
+              // required
             />
           </div>
 
@@ -107,7 +107,7 @@ const AdminLogin = () => {
                 type={showPassword ? "text" : "password"}
                 className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-teal-200 dark:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 placeholder="Enter password"
-                required
+                // required
               />
 
               <button
