@@ -6,6 +6,8 @@ import { Moon, Sun } from 'lucide-react';
 
 const AdminDashboard = ({ darkMode, toggleDarkMode }) => {
 
+    const formattedDate = new Date().toLocaleDateString('en-GB');
+    const formattedTime = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute: '2-digit'});
     return (
         <div className='flex h-screen font-sans overflow-hidden'>
             <aside className='w-64 bg-white dark:bg-black/40 backdrop-blur-md border-r border-teal-500/20 flex flex-col transition-all duration-300'>
@@ -71,6 +73,22 @@ const AdminDashboard = ({ darkMode, toggleDarkMode }) => {
                 </div>
             </aside>
 
+
+            <main className='flex flex-1 flex-col h-screen overflow-hidden'>
+                <header className='flex items-center justify-between p-6 bg-white/40 dark:bg-gray-950/40 backdrop:blur-xl border-b border-teal-500/20 shadow-sm z-10'>
+                    <div>
+                        <h1 text-2xl font-bold text-gray-800 dark:text-white>Overview</h1>
+                    </div>
+                    <div className="px-4 py-2 bg-white/5 dark:bg-black/20 backdrop-blur-md rounded-xl border border-teal-500/20 text-right shadow-sm">
+                        <p className="text-sm font-bold text-teal-600 dark:text-teal-400 tracking-wider">
+                            {formattedTime}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {formattedDate}
+                        </p>
+                    </div>
+                </header>
+            </main>
         </div>
     )
 };
