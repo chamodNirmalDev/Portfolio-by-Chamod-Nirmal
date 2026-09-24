@@ -26,7 +26,7 @@ const AdminLogin = () => {
       navigate('/admin/dashboard'); : පිටුව Refresh වීම නැවැත්වූවාට පසුව, කිසිම ප්‍රමාදයකින් තොරව ක්ෂණිකවම පරිශීලකයාව අපි කලින් ලබාගත් navigate නැමැති ටැක්සිය හරහා /admin/dashboard කියන අලුත් පිටුවට (Admin Dashboard එකට) රැගෙන යනවා.*/
   const handleLogin = (e) => {
     e.preventDefault();
-    navigate('/admin/dashboard');
+    navigate('/admin');
   }
 
   return (

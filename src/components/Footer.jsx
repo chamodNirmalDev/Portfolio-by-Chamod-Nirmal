@@ -46,7 +46,7 @@ const Footer = () => {
                             <Link to="/admin">: මේක සාමාන්‍ය HTML වල තියෙන <a> (Anchor) ලින්ක් එකක් වගේමයි. හැබැයි තියෙන ප්‍රධානම විශේෂත්වය වෙන්නේ, මේක ක්ලික් කළාම වෙබ් අඩවිය ආයෙත් මුල ඉඳන් Load (Refresh) වෙන්නේ නැහැ. ඒ වෙනුවට කිසිම ප්‍රමාදයකින් තොරව ක්ෂණිකවම අපි App.jsx එකේ හදපු /admin කියන පාරට (Admin Login පිටුවට) ඔයාව අරගෙන යනවා
                              */}
                     <Link 
-                        to='/admin' 
+                        to='/admin/login' 
                         className='hover:text-teal-500 dark:hover:text-emerald-400 transition-colors'>
                         <FaCog size={20} />
                     </Link>
