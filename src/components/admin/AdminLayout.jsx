@@ -58,7 +58,7 @@ const AdminLayout = ({ darkMode, toggleDarkMode }) => {
                         <FaHome size={20} /> Dashboard
                     </Link>
 
-                    <Link to="/admin/projects"
+                    <Link to="/admin/projectsManagement"
                         onClick={handleLinkClick}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors 
                         ${location.pathname.includes('projects') ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 font-medium'
@@ -66,28 +66,28 @@ const AdminLayout = ({ darkMode, toggleDarkMode }) => {
                         <FaProjectDiagram size={20} /> Projects
                     </Link>
 
-                    <Link to='#'
+                    <Link to='/admin/skillsManagement'
                         onClick={handleLinkClick}
                         className='flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-teal-50 dark:hover:bg-teal-500/10
                          hover:text-teal-600 dark:hover:text-teal-400 rounded-xl transition-colors'>
                         <FaCode size={20} /> Skills
                     </Link>
 
-                    <Link to="#"
+                    <Link to="/admin/message"
                         onClick={handleLinkClick}
                         className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-teal-50 dark:hover:bg-teal-500/10
                          hover:text-teal-600 dark:hover:text-teal-400 rounded-xl transition-colors">
                         <FaEnvelope size={20} /> Messages
                     </Link>
 
-                    <Link to='#'
+                    <Link to='/admin/experienceEducation'
                         onClick={handleLinkClick}
                         className='flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-teal-50 dark:hover:bg-teal-500/10
                          hover:text-teal-600 dark:hover:text-teal-400 rounded-xl transition-colors'>
                         <FaGraduationCap size={20} /> Experience & Education
                     </Link>
 
-                    <Link to='#'
+                    <Link to='/admin/settings'
                         onClick={handleLinkClick}
                         className='flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-teal-50 dark:hover:bg-teal-500/10
                          hover:text-teal-600 dark:hover:text-teal-400 rounded-xl transition-colors'>

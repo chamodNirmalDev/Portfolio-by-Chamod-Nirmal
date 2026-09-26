@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
-const Projects = () => {
+const ProjectsManagement = () => {
 
     /*"Popup එක (Modal එක) දැනට පෙන්වනවාද? නැද්ද?" කියන එක මතක තියාගන්න සහ ඒක පාලනය කරන්න අවශ්‍ය ස්විච් එකක් (Switch) හදාගන්න එකයි.
         මෙහි වරහන් ඇතුළේ ඇති false යන්නෙන් කියන්නේ ආරම්භක අගයයි. වෙබ් පිටුව මුලින්ම ලෝඩ් වෙද්දී අර "Add New Project" ෆෝම් එක (Popup එක) තිරයේ පෙන්වන්න අවශ්‍ය නැහැනේ. ඒක හැංගිලා තියෙන්න ඕනේ. ඒ නිසා අපි මුලින්ම අගය 'වැරදියි' හෙවත් false කියලා දෙනවා.
@@ -191,4 +191,4 @@ const Projects = () => {
     );
 };
 
-export default Projects;
+export default ProjectsManagement;
