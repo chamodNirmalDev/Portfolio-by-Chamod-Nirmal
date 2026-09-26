@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
 const Projects = () => {
 
@@ -96,6 +96,97 @@ const Projects = () => {
                     </div>
                 </div>
             </div>
+
+            {isModalOpen && (
+                <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm'>
+                    <div className='bg-white dark:bg-gray-900 border border-teal-500/20 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+
+                        <div className='flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800'>
+                            <h3 className='text-xl font-bold text-gray-800 dark:text-white'>Add New Project</h3>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className='text-gray-500 hover:text-red-500 transition-colors p-1'><FaTimes size={20} /></button>
+                        </div>
+
+                        <div className='p-6 space-y-5'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Project Title</label>
+                                <input
+                                    type='text'
+                                    placeholder='e.g. , Hospital Managemnet Syatem'
+                                    className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                                    focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'/>
+                            </div>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Description</label>
+                                <textarea
+                                    rows='3'
+                                    placeholder='Briefly describe the project...'
+                                    className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                                    focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'/>
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Technologies (Comma separated)</label>
+                                    <input
+                                        type='text'
+                                        placeholder='React, Spring Boot, MySQL'
+                                        className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                                        focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'/>
+                                </div>
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Status</label>
+                                    <select className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none
+                                    focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'>
+                                        <option>Active</option>
+                                        <option>In Progress</option>
+                                        <option>Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>GitHub Link</label>
+                                    <input
+                                        type='text'
+                                        placeholder='https://github.com/...'
+                                        className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                                            focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'/>
+                                </div>
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Live Demo</label>
+                                    <input
+                                        type='text'
+                                        placeholder='https://...'
+                                        className='w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                                            focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white'/>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Project Image URL</label>
+                                <input type="text" placeholder="Enter image link or upload..." className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 
+                                    border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white" />
+                            </div>
+                        </div>
+
+                        <div className='flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 rounded-b-2xl'>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className='px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors'>
+                                Cancel
+                            </button>
+                            <button
+                                className='px-5 py-2.5 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold
+                                    rounded-xl transition-all shadow-md'>
+                                Save Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
