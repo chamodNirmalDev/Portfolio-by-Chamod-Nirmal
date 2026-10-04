@@ -7,6 +7,7 @@ import { DownloadIcon, Mail } from 'lucide-react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 
 // --- Number Counting Component ---
+// to කියන්නේ අපි යන්න ඕන අවසාන අගයයි.
 const AnimatedCounter = ({ to }) => {
     const [currentValue, setCurrentValue] = useState(0);
 
@@ -26,13 +27,6 @@ const AnimatedCounter = ({ to }) => {
 };
 
 const Hero = () => {
-    const socialIcons = [
-        { icon: FaLinkedin, alt: 'Linkdin', link: '#' },
-        { icon: FaGithub, alt: 'Github', link: '#' },
-        { icon: FaFacebook, alt: 'Facebook', link: '#' },
-        { icon: FaYoutube, alt: 'Youtube', link: '#' },
-        { icon: FaInstagram, alt: 'Instagram', link: '#' }
-    ]
 
     const text = "< Full Stack Developer >";
 
@@ -114,16 +108,30 @@ const Hero = () => {
                             Hello, I'm <span className='text-teal-700 dark:text-teal-400'>Chamod</span>
                         </h1>
 
-                        <motion.h2 variants={containerVariants} initial='hidden' animate='visible' className='text-2xl sm:text-3xl font-mono mb-4 dark:text-emerald-500 text-emerald-700 flex items-center justify-center lg:justify-start flex-wrap'>
+                        <motion.h2 
+                            variants={containerVariants} 
+                            initial='hidden' animate='visible' 
+                            className='text-2xl sm:text-3xl font-mono mb-4 dark:text-emerald-500 text-emerald-700 flex items-center justify-center 
+                                lg:justify-start flex-wrap'>
                             {text.split("").map((char,index) => {
                                 const isBracket = char === "<" || char === ">";
                                 return(
-                                    <motion.span key={index} variants={letterVariants} className={isBracket ? "text-teal-700 dark:text-teal-400" : ""}>
+                                    <motion.span 
+                                    key={index} 
+                                    variants={letterVariants} 
+                                    className={isBracket ? "text-teal-700 dark:text-teal-400" : ""}>
                                         {char === " " ? "\u00A0" : char}
                                     </motion.span>
                                 );
                             })}
-                            <motion.span animate={{opacity: [1,0,1]}} transition={{repeat : Infinity, duration: 0.8, ease: "linear"}} className="inline-block w-0.75 h-5 sm:h-6 bg-emerald-700 dark:bg-emerald-500 ml-2"></motion.span>
+                            <motion.span 
+                            animate={{opacity: [1,0,1]}} 
+                            transition={{
+                                repeat : Infinity, 
+                                duration: 0.8, 
+                                ease: "linear"}} 
+                            className="inline-block w-0.75 h-5 sm:h-6 bg-emerald-700 dark:bg-emerald-500 ml-2">
+                            </motion.span>
                         </motion.h2>
 
                         <p className='mb-6 leading-relaxed max-w-md lg:max-w-lg dark:text-emerald-100/80 text-emerald-950'>
