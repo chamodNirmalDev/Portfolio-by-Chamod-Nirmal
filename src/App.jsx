@@ -25,8 +25,17 @@ import ExperienceEducation from './components/admin/ExperienceEducation';
 import Settings from './components/admin/Settings';
 import { Icon } from 'lucide-react';
 
-// Click කරද්දී මතු විය යුතු අයිකන් ලැයිස්තුව
-const particleIcons = [FaReact, FaJava, FaPython, FaHtml5, FaPhp, FaCss3, FaDatabase, FaGithub];
+// Click කරද්දී මතු විය යුතු අයිකන් සහ ඒවාටම ආවේණික (Unique) වර්ණ
+const particleIcons = [
+    { Icon: FaReact, color: "text-[#61DAFB]" },      // ලා නිල්
+    { Icon: FaJava, color: "text-[#f89820]" },       // තැඹිලි
+    { Icon: FaPython, color: "text-[#FFD43B]" },     // කහ
+    { Icon: FaHtml5, color: "text-[#E34F26]" },      // තද තැඹිලි/රතු
+    { Icon: FaPhp, color: "text-[#777BB4]" },        // දම්
+    { Icon: FaCss3, color: "text-[#1572B6]" },       // තද නිල්
+    { Icon: FaDatabase, color: "text-[#10B981]" },   // කොළ (Emerald)
+    { Icon: FaGithub, color: "text-gray-100" }       // සුදු
+];
 
 const App = () => {
     const [darkMode, setDarkMode] = useState(true);
@@ -86,16 +95,15 @@ const App = () => {
 
         // 2. Global Click Listener (Particles සඳහා)
         const handleGlobalClick = (e) => {
-            const RandomIcon = particleIcons[Math.floor(Math.random() * particleIcons.length)];
-            const colors = ["text-teal-400", "text-emerald-400", "text-[#61DAFB]", "text-[#f89820]"];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            // අහඹු ලෙස අයිකනය සහ එහි වර්ණය තෝරාගැනීම
+            const randomParticle = particleIcons[Math.floor(Math.random() * particleIcons.length)];
 
             const newParticle = {
                 id: Date.now() + Math.random(),
                 x: e.clientX,
                 y: e.clientY,
-                Icon: RandomIcon,
-                color: randomColor
+                Icon: randomParticle.Icon,
+                color: randomParticle.color // අයිකනයට අදාළ නියම වර්ණය
             };
 
             setParticles((prev) => [...prev, newParticle]);
@@ -184,6 +192,7 @@ const App = () => {
                 </div>
 
                 {/* 3. Click Particle Effects */}
+                {/* 3. Click Particle Effects */}
                 {particles.map((particle) => (
                     <motion.div
                         key={particle.id}
@@ -195,7 +204,8 @@ const App = () => {
                             x: (Math.random() - 0.5) * 60
                         }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className={`absolute z-100 ${particle.color}`}
+                        // මෙතන අලුතින් 'drop-shadow-[0_0_8px_currentColor]' එකතු කර ඇත
+                        className={`absolute z-[100] ${particle.color} drop-shadow-[0_0_8px_currentColor]`}
                         style={{ left: particle.x - 15, top: particle.y - 15 }}
                     >
                         <particle.Icon size={30} />
