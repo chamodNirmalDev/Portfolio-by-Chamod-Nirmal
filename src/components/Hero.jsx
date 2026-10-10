@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import hero from '../assets/hero.png'
 import { FaFacebook, FaGithub, FaInstagram, FaYoutube, FaReact, FaJava, FaDatabase, FaPython, FaHtml5, FaPhp, FaCss3 } from 'react-icons/fa'
 import { FaLinkedin } from 'react-icons/fa6'
-import CV from '../assets/CV.pdf'
+import CV from '../assets/cv.pdf'
 import { DownloadIcon, Mail, Check, ArrowRight } from 'lucide-react'
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion'
 
