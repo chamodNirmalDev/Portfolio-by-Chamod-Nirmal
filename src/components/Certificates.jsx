@@ -145,7 +145,7 @@ const Certificate = () => {
             </div>
 
             {/* Custom Scrollbar CSS */}
-            <style jsx>{`
+            <style jsx = 'true'>{`
                 .scrollbar-thin::-webkit-scrollbar {
                     width: 6px;
                 }

@@ -205,7 +205,7 @@ const App = () => {
                         }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         // මෙතන අලුතින් 'drop-shadow-[0_0_8px_currentColor]' එකතු කර ඇත
-                        className={`absolute z-[100] ${particle.color} drop-shadow-[0_0_8px_currentColor]`}
+                        className={`absolute z-100 ${particle.color} drop-shadow-[0_0_8px_currentColor]`}
                         style={{ left: particle.x - 15, top: particle.y - 15 }}
                     >
                         <particle.Icon size={30} />

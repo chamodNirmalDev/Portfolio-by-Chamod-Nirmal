@@ -31,14 +31,14 @@ const AnimatedDownloadButton = ({ cvFile }) => {
 
     const handleDownload = () => {
         if (downloadState !== 'idle') return;
-        
+
         // Downloading තත්ත්වයට පත් කිරීම
         setDownloadState('downloading');
 
         // ඇත්තටම CV එක Download වීමට ලබා දෙන කේතය
         const link = document.createElement('a');
         link.href = cvFile;
-        link.download = "Chamod_Nirmal_CV.pdf"; 
+        link.download = "Chamod_Nirmal_CV.pdf";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -46,7 +46,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
         // තත්පර 2කින් Progress එක පිරී Completed තත්ත්වයට පත් කිරීම
         setTimeout(() => {
             setDownloadState('completed');
-            
+
             // තත්පර 2කට පසු නැවතත් මුල් තත්ත්වයට පත් කිරීම
             setTimeout(() => {
                 setDownloadState('idle');
@@ -61,7 +61,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
             className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center rounded-full text-white font-semibold bg-linear-to-r from-teal-500 to-emerald-600 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap disabled:cursor-wait disabled:hover:scale-100 disabled:hover:shadow-none'
         >
             <AnimatePresence mode="wait">
-                
+
                 {/* 1. Idle State */}
                 {downloadState === 'idle' && (
                     <motion.div
@@ -88,7 +88,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         className="flex items-center justify-center w-full h-full relative"
                     >
                         <span className="relative z-10 text-white font-bold tracking-widest text-xs sm:text-sm uppercase drop-shadow-md">Downloading...</span>
-                        
+
                         {/* Progress Bar (පිරීගෙන යන කොටස) */}
                         <motion.div
                             initial={{ width: 0 }}
@@ -109,7 +109,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         className="flex items-center gap-2 bg-emerald-500 w-full h-full justify-center absolute inset-0 z-20"
                     >
                         <span className="font-bold">Ready!</span>
-                        
+
                         {/* ඊතලය */}
                         <motion.div
                             initial={{ x: -30, opacity: 0 }}
@@ -118,7 +118,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         >
                             <ArrowRight size={20} />
                         </motion.div>
-                        
+
                         {/* හරි ලකුණ */}
                         <motion.div
                             initial={{ scale: 0 }}
@@ -264,15 +264,26 @@ const Hero = () => {
                         </div>
 
                         {/* --- Buttons Section --- */}
-                        <div className='flex flex-col sm:flex-row gap-5 w-full sm:w-auto'>
-                            
+                        <div className='flex flex-col sm:flex-row gap-5 w-full sm:w-auto items-center mt-4'>
+
                             {/* අලුතින් එක් කළ Animated Download Button එක */}
                             <AnimatedDownloadButton cvFile={CV} />
 
-                            <a href="#contact" className='w-full sm:w-auto group'>
-                                <button className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border-2 dark:border-teal-500 border-teal-600 dark:text-emerald-100 text-teal-900 font-semibold dark:hover:bg-emerald-600 hover:bg-teal-600 hover:text-white hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap'>
-                                    <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3.5 }} className="absolute inset-0 z-0 w-1/3 bg-linear-to-r from-transparent via-teal-500/30 to-transparent skew-x-12" />
-                                    <span className="relative z-10 flex items-center gap-2"><Mail size={18} /> Hire Me</span>
+                            <a href="#contact"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    document.getElementById('contacts').scrollIntoView({
+                                        behavior: 'smooth'
+                                    });
+                                }} className='w-full sm:w-auto group'>
+                                <button className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border-2 dark:border-teal-500 border-teal-600 dark:text-emerald-100 text-teal-900 font-semibold dark:hover:bg-emerald-600 hover:bg-teal-600 hover:text-white hover:shadow-[0_0_40px_rgba(20,184,166,0.3)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap'>
+                                    <motion.div
+                                        className="absolute inset-0 z-0 w-1/3 bg-linear-to-r from-transparent via-teal-500/30 dark:via-emerald-400/30 to-transparent skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"
+                                    />
+                                    <span className="relative z-10 flex items-center gap-2">
+                                        <Mail size={18} className="group-hover:scale-110 transition-transform duration-300" />
+                                        Hire Me
+                                    </span>
                                 </button>
                             </a>
                         </div>

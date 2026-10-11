@@ -183,7 +183,7 @@ const Skills = () => {
             </AnimatePresence>
             
             {/* Scrollbar එක සඟවා තැබීමට CSS (Tabs සඳහා) */}
-            <style jsx>{`
+            <style jsx = 'true'>{`
                 .hide-scrollbar::-webkit-scrollbar {
                     display: none;
                 }
