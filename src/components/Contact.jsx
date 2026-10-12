@@ -25,7 +25,7 @@ const Contact = () => {
         setFormStatus('sending');
 
         try {
-            const response = await fetch('https://portfolio-backend-orcin-zeta.vercel.app/api/send-email', {
+            const response = await fetch('https://portfolio-backend-orcin-zeta.vercel.app/api/send-email', { //https://portfolio-backend-orcin-zeta.vercel.app
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

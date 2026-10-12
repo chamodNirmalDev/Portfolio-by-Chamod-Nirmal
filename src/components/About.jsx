@@ -5,37 +5,43 @@ import about from '../assets/hero.png'
 
 const About = () => {
 
-    /* සමාජ මාධ්‍ය දත්ත ලැයිස්තුව (Brand Colors සහිතව) */ 
+    /* සමාජ මාධ්‍ය දත්ත ලැයිස්තුව (Brand Colors සහිතව) */
     const socialLinks = [
         {
             icon: FaLinkedin,
             label: 'LinkedIn',
-            color: 'hover:text-blue-600 hover:border-blue-600/40'
+            color: 'hover:text-blue-600 hover:border-blue-600/40',
+            url: 'https://www.linkedin.com/in/chamod-nirmal-79113528a'
         },
         {
             icon: FaGithub,
             label: 'GitHub',
-            color: 'hover:text-gray-800 dark:hover:text-white hover:border-gray-800/40 dark:hover:border-gray-200/40'
+            color: 'hover:text-gray-800 dark:hover:text-white hover:border-gray-800/40 dark:hover:border-gray-200/40',
+            url: 'https://github.com/chamodNirmalDev'
         },
         {
             icon: FaYoutube,
             label: 'YouTube',
-            color: 'hover:text-red-500 hover:border-red-500/40'
+            color: 'hover:text-red-500 hover:border-red-500/40',
+            url: 'https://www.youtube.com/@chamodnirmal3476'
         },
         {
             icon: FaFacebook,
             label: 'Facebook',
-            color: 'hover:text-blue-500 hover:border-blue-500/40'
+            color: 'hover:text-blue-500 hover:border-blue-500/40',
+            url: 'https://www.facebook.com/chamod.nirmal.792'
         },
         {
             icon: FaInstagram,
             label: 'Instagram',
-            color: 'hover:text-pink-500 hover:border-pink-500/40'
+            color: 'hover:text-pink-500 hover:border-pink-500/40',
+            url: 'https://www.instagram.com/chamod.nirmal.792/'
         },
         {
             icon: FaTiktok,
             label: 'TikTok',
-            color: 'hover:text-black dark:hover:text-white hover:border-black/40 dark:hover:border-gray-200/40'
+            color: 'hover:text-black dark:hover:text-white hover:border-black/40 dark:hover:border-gray-200/40',
+            url: 'https://www.tiktok.com/@chamod.nirmal90'
         }
     ]
 
@@ -65,10 +71,9 @@ const About = () => {
 
                     {/* යාවත්කාලීන කළ වෘත්තීය විස්තර ඡේදය */}
                     <p className='text-base lg:text-lg mb-8 leading-relaxed dark:text-gray-300 text-gray-700 max-w-xl'>
-                        I am a dedicated Software Engineering student and a passionate freelance full-stack developer based in Sri Lanka.
-                         My expertise spans across React.js, Java, and modern web technologies, allowing me to build everything from dynamic
-                          web platforms to scalable applications. Whether it's crafting intuitive user interfaces or designing secure backend
-                           architectures, I am committed to delivering high-quality, user-centric solutions.
+                        Hi, I'm Chamod Nirmal, a Freelance Full-Stack Developer based in Sri Lanka, currently pursuing my BSc
+                        in Software Engineering at Birmingham City University. I specialize in building secure and scalable applications
+                        using React.js, Node.js, and Java, turning complex ideas into elegant digital solutions.
                     </p>
 
                     {/* සමාජ මාධ්‍ය බොත්තම් පෙළගැස්ම */}
@@ -78,10 +83,12 @@ const About = () => {
                             return (
                                 <a
                                     key={index}
-                                    href='#'
+                                    href={social.url} // මෙතන තමා වෙනස කළේ
+                                    target="_blank" // අලුත් ටැබ් එකකින් ඕපන් වෙන්න
+                                    rel="noopener noreferrer" // ආරක්ෂාව සඳහා
                                     aria-label={social.label}
                                     data-aos='zoom-in'
-                                    data-aos-delay={index * 150} // අයිකන් මතු වීමේ වේගය තරමක් අඩු කර ඇත (ලස්සනට පෙනීමට)
+                                    data-aos-delay={index * 150}
                                     className={`w-12 h-12 rounded-full flex items-center justify-center text-xl
                                     border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50
                                     backdrop-blur-sm dark:text-gray-300 text-gray-700 transition-all duration-300
@@ -93,7 +100,7 @@ const About = () => {
                     </div>
 
                     {/* "Let's Talk" බොත්තම - Teal වර්ණයෙන් */}
-                    <a href="#contact" data-aos='fade-up' data-aos-delay='300'>
+                    <a href="#contacts" data-aos='fade-up' data-aos-delay='300'> {/* මෙතන #contacts කියලා හැදුවොත් හරියටම පල්ලෙහාට යයි */}
                         <button className='w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full
                                 border-2 dark:border-emerald-500 border-teal-600 dark:text-white text-gray-800
                                 hover:text-white dark:hover:text-white font-semibold
