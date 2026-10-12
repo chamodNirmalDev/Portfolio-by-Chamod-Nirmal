@@ -67,7 +67,7 @@ const Contact = () => {
                 {/* --- Main Centered Title --- */}
                 <div className='text-center mb-16' data-aos='fade-up'>
                     <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 mb-5'>
-                        <span className='w-2 h-2 rounded-full bg-teal-500 animate-pulse'></span>
+                        <span className='w-2 h-2 rounded-full bg-red-500 animate-pulse'></span>
                         <span className='text-sm font-medium dark:text-gray-300 text-gray-700 uppercase tracking-wider'>Contact Me</span>
                     </div>
                     <h2 className='text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 dark:text-white text-gray-900'>

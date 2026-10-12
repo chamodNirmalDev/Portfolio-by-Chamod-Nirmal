@@ -61,7 +61,7 @@ const Skills = () => {
                     className="text-center mb-10 sm:mb-16"
                 >
                     <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 mb-5'>
-                        <span className='w-2 h-2 rounded-full bg-teal-500 animate-pulse'></span>
+                        <span className='w-2 h-2 rounded-full bg-red-500 animate-pulse'></span>
                         <span className='text-xs sm:text-sm font-medium dark:text-gray-300 text-gray-700 uppercase tracking-wider'>Expertise</span>
                     </div>
                     <h2 className='text-3xl sm:text-4xl lg:text-5xl font-bold dark:text-white text-gray-900'>
