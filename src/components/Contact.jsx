@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Mail, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
-import { FaGithub, FaLinkedin, FaWhatsapp, FaBriefcase } from 'react-icons/fa';
-import { SiFreelancer } from 'react-icons/si';
+import { FaWhatsapp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Contact = () => {
@@ -25,7 +24,7 @@ const Contact = () => {
         setFormStatus('sending');
 
         try {
-            const response = await fetch('https://portfolio-backend-orcin-zeta.vercel.app/api/send-email', { //https://portfolio-backend-orcin-zeta.vercel.app
+            const response = await fetch('https://portfolio-backend-orcin-zeta.vercel.app/api/send-email', { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,66 +76,74 @@ const Contact = () => {
 
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch'>
 
-                    {/* --- Left Column: Contact Info Card --- */}
-                    <div 
-                        className='flex flex-col justify-between gap-8 dark:bg-zinc-900/50 bg-white/60 p-8 sm:p-10 rounded-3xl border dark:border-zinc-800 border-gray-100 backdrop-blur-md shadow-2xl shadow-teal-500/5 order-2 lg:order-1' 
-                        data-aos='fade-right'
-                    >
+                    {/* වම්පස තීරුව - Contact Information */}
+                    <div className="flex flex-col gap-8">
+
+                        {/* මාතෘකාව සහ විස්තරය */}
                         <div>
-                            <h3 className='text-2xl font-bold dark:text-white text-gray-900 mb-4'>Get In Touch</h3>
-                            <p className='text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed mb-8'>
-                                I'm always open to discussing product design work or partnership opportunities. Reach out to me directly via email or WhatsApp.
+                            <h2 className="text-3xl font-bold text-white mb-4">Get In Touch</h2>
+                            <p className="text-gray-400 leading-relaxed">
+                                I'm always open to discussing product design work or partnership opportunities. Reach out to me directly via WhatsApp or visit my location.
                             </p>
-
-                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                                <a href="mailto:chamodnirmal54@gmail.com" className='flex items-center gap-4 p-4 rounded-2xl dark:bg-zinc-950/50 bg-white/80 border dark:border-zinc-800 border-gray-100 hover:border-teal-500/50 transition-colors group'>
-                                    <div className='p-3 rounded-full bg-teal-500/10 text-teal-600 dark:text-emerald-400 group-hover:bg-teal-500 group-hover:text-white transition-colors'>
-                                        <Mail size={20} />
-                                    </div>
-                                    <div>
-                                        <p className='text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5'>Email</p>
-                                        <p className='text-sm font-medium text-gray-900 dark:text-white'>Drop a line</p>
-                                    </div>
-                                </a>
-
-                                <a href="https://wa.me/94700000000" target="_blank" rel="noopener noreferrer" className='flex items-center gap-4 p-4 rounded-2xl dark:bg-zinc-950/50 bg-white/80 border dark:border-zinc-800 border-gray-100 hover:border-green-500/50 transition-colors group'>
-                                    <div className='p-3 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 group-hover:bg-green-500 group-hover:text-white transition-colors'>
-                                        <FaWhatsapp size={20} />
-                                    </div>
-                                    <div>
-                                        <p className='text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5'>WhatsApp</p>
-                                        <p className='text-sm font-medium text-gray-900 dark:text-white'>Let's chat</p>
-                                    </div>
-                                </a>
-
-                                <div className='flex items-center gap-4 p-4 rounded-2xl dark:bg-zinc-950/50 bg-white/80 border dark:border-zinc-800 border-gray-100 sm:col-span-2'>
-                                    <div className='p-3 rounded-full bg-teal-500/10 text-teal-600 dark:text-emerald-400'>
-                                        <MapPin size={20} />
-                                    </div>
-                                    <div>
-                                        <p className='text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5'>Location</p>
-                                        <p className='text-sm font-medium text-gray-900 dark:text-white'>Piliyandala, Sri Lanka</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
-                        <div className='pt-6 border-t dark:border-zinc-800 border-gray-200'>
-                            <p className='text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4'>Find me on</p>
-                            <div className='flex flex-wrap gap-3'>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className='p-3 rounded-full dark:bg-zinc-800/80 bg-gray-100 text-gray-600 dark:text-gray-400 hover:text-[#0A66C2] dark:hover:text-[#0A66C2] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all'>
-                                    <FaLinkedin size={20} />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className='p-3 rounded-full dark:bg-zinc-800/80 bg-gray-100 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-zinc-700 transition-all'>
-                                    <FaGithub size={20} />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className='p-3 rounded-full dark:bg-zinc-800/80 bg-gray-100 text-gray-600 dark:text-gray-400 hover:text-[#29B2FE] dark:hover:text-[#29B2FE] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all'>
-                                    <SiFreelancer size={20} />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className='p-3 rounded-full dark:bg-zinc-800/80 bg-gray-100 text-gray-600 dark:text-gray-400 hover:text-[#22C55E] dark:hover:text-[#22C55E] hover:bg-green-50 dark:hover:bg-green-900/20 transition-all'>
-                                    <FaBriefcase size={20} />
-                                </a>
-                            </div>
+                        {/* Contact Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            {/* WhatsApp Box */}
+                            <a
+                                href="https://wa.me/94711234567" // මෙතන ඔයාගේ නම්බර් එක දාන්න
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-800 hover:bg-gray-800/50 hover:border-teal-500/30 transition-all cursor-pointer group"
+                            >
+                                <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center text-teal-500 group-hover:scale-110 group-hover:bg-teal-500/20 transition-all duration-300">
+                                    <FaWhatsapp size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold tracking-wider uppercase text-gray-400 group-hover:text-teal-400 transition-colors">
+                                        WhatsApp
+                                    </h3>
+                                    <p className="text-white mt-1">Let's chat</p>
+                                </div>
+                            </a>
+
+                            {/* Location Box */}
+                            <a
+                                href="https://www.google.com/maps/dir/?api=1&destination=6.769238,79.94509"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-800 hover:bg-gray-800/50 hover:border-teal-500/30 transition-all cursor-pointer group"
+                            >
+                                <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center text-teal-500 group-hover:scale-110 group-hover:bg-teal-500/20 transition-all duration-300">
+                                    <MapPin size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-semibold tracking-wider uppercase text-gray-400 group-hover:text-teal-400 transition-colors">
+                                        Location
+                                    </h3>
+                                    <p className="text-white mt-1">Piliyandala, Sri Lanka</p>
+                                    <p className="text-xs text-gray-500 mt-1 group-hover:text-teal-500/80 transition-colors">Click for directions</p>
+                                </div>
+                            </a>
+
+                        </div>
+
+                        {/* Dark Theme Google Map */}
+                        <div className="w-full h-64 mt-2 rounded-xl overflow-hidden border border-gray-800 shadow-[0_4px_20px_rgba(0,0,0,0.3)] relative group bg-gray-900">
+                            {/* Map එක උඩින් යන Dark overlay එක */}
+                            <div className="absolute inset-0 bg-gray-900/40 pointer-events-none group-hover:bg-transparent transition-colors duration-500 z-10"></div>
+                            
+                            <iframe
+                                src="https://maps.google.com/maps?q=6.769238,79.94509&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen=""
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                className="w-full h-full filter invert-[90%] hue-rotate-180 contrast-80 group-hover:invert-0 group-hover:hue-rotate-0 group-hover:contrast-100 transition-all duration-500"
+                            ></iframe>
                         </div>
 
                     </div>
