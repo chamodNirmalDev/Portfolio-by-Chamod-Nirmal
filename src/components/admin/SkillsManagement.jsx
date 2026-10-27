@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
     FaPlus, FaEdit, FaTrash, FaTimes, FaCode, FaServer, 
     FaPaintBrush, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools, FaSyncAlt 
+    FaBrain, FaRobot, FaTools, FaSyncAlt, FaCheck 
 } from 'react-icons/fa';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
@@ -12,9 +12,9 @@ const CATEGORY_OPTIONS = [
     'Desktop App', 'Database', 'AI & ML', 'Robotics & IoT', 'Tools'
 ];
 
-// කැටගරියට අනුව ගැළපෙන default Icon සහ Color තේරීම
-const getCategoryIcon = (category) => {
-    switch (category) {
+const getCategoryIcon = (categories = []) => {
+    const primary = categories[0] || 'Frontend';
+    switch (primary) {
         case 'Frontend':
         case 'Web Based':
             return { Icon: FaCode, color: 'text-blue-500 bg-blue-100 dark:bg-blue-500/10' };
@@ -39,7 +39,7 @@ const getCategoryIcon = (category) => {
 
 const initialFormState = {
     name: '',
-    category: 'Frontend',
+    categories: ['Frontend'],
     proficiency: 85,
     desc: ''
 };
@@ -72,22 +72,26 @@ const SkillsManagement = () => {
         fetchSkills();
     }, [fetchSkills]);
 
-    // Input Changes හැසිරවීම
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'proficiency' ? Number(value) : value
-        }));
+    // Handle Category Toggle (Multi-Select)
+    const toggleCategory = (cat) => {
+        setFormData(prev => {
+            const exists = prev.categories.includes(cat);
+            if (exists) {
+                if (prev.categories.length === 1) return prev; // අඩුම තරමේ එක category එකක් තියෙන්න ඕන
+                return { ...prev, categories: prev.categories.filter(c => c !== cat) };
+            } else {
+                return { ...prev, categories: [...prev.categories, cat] };
+            }
+        });
     };
 
-    // Modal විවෘත කිරීම (Add New හෝ Edit සඳහා)
+    // Modal විවෘත කිරීම
     const openModal = (skill = null) => {
         if (skill) {
             setEditingSkillId(skill._id);
             setFormData({
                 name: skill.name || '',
-                category: skill.categories?.[0] || 'Frontend',
+                categories: Array.isArray(skill.categories) && skill.categories.length > 0 ? skill.categories : ['Frontend'],
                 proficiency: skill.proficiency ?? 85,
                 desc: skill.desc || ''
             });
@@ -104,7 +108,7 @@ const SkillsManagement = () => {
         setFormData(initialFormState);
     };
 
-    // 2. Add New Skill හෝ Update Skill (Submit)
+    // Submit New හෝ Updated Skill
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('adminToken');
@@ -113,10 +117,15 @@ const SkillsManagement = () => {
             return;
         }
 
+        if (formData.categories.length === 0) {
+            alert('Please select at least one category!');
+            return;
+        }
+
         setIsSaving(true);
         const payload = {
             name: formData.name.trim(),
-            categories: [formData.category],
+            categories: formData.categories,
             proficiency: formData.proficiency,
             desc: formData.desc.trim()
         };
@@ -140,7 +149,7 @@ const SkillsManagement = () => {
             const result = await res.json();
             if (result.success) {
                 closeModal();
-                fetchSkills(); // ලැයිස්තුව Refresh කිරීම
+                fetchSkills();
             } else {
                 alert(result.error || 'Failed to save skill');
             }
@@ -152,7 +161,7 @@ const SkillsManagement = () => {
         }
     };
 
-    // 3. Delete Skill
+    // Delete Skill
     const handleDelete = async (id, name) => {
         if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
@@ -177,7 +186,7 @@ const SkillsManagement = () => {
     return (
         <div className="flex-1 p-6 overflow-y-auto relative">
             
-            {/* Top Header Section */}
+            {/* Top Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Skills Management</h2>
@@ -217,53 +226,65 @@ const SkillsManagement = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
                     {skills.map((skill) => {
-                        const mainCategory = skill.categories?.[0] || 'Frontend';
-                        const { Icon, color } = getCategoryIcon(mainCategory);
+                        const { Icon, color } = getCategoryIcon(skill.categories);
 
                         return (
                             <div 
                                 key={skill._id} 
-                                className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group"
+                                className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
                             >
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-lg ${color}`}>
-                                            <Icon size={20} />
+                                <div>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2.5 rounded-lg ${color}`}>
+                                                <Icon size={20} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
-                                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{mainCategory}</span>
+                                        
+                                        {/* Actions */}
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <button 
+                                                onClick={() => openModal(skill)}
+                                                className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
+                                                title="Edit"
+                                            >
+                                                <FaEdit size={14} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(skill._id, skill.name)}
+                                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
+                                                title="Delete"
+                                            >
+                                                <FaTrash size={14} />
+                                            </button>
                                         </div>
                                     </div>
-                                    
-                                    {/* Edit & Delete Actions */}
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button 
-                                            onClick={() => openModal(skill)}
-                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
-                                            title="Edit"
-                                        >
-                                            <FaEdit size={14} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(skill._id, skill.name)}
-                                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
-                                            title="Delete"
-                                        >
-                                            <FaTrash size={14} />
-                                        </button>
-                                    </div>
-                                </div>
 
-                                {skill.desc && (
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-                                        {skill.desc}
-                                    </p>
-                                )}
+                                    {/* Multiple Categories Badges */}
+                                    <div className="flex flex-wrap gap-1.5 mb-3">
+                                        {skill.categories?.map((cat, i) => (
+                                            <span 
+                                                key={i}
+                                                className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
+                                            >
+                                                {cat}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    {skill.desc && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                                            {skill.desc}
+                                        </p>
+                                    )}
+                                </div>
                                 
                                 {/* Progress Bar */}
                                 <div className="mt-2">
-                                    <div className="flex justify-between text-sm mb-2">
+                                    <div className="flex justify-between text-sm mb-1.5">
                                         <span className="font-bold text-gray-700 dark:text-gray-300 text-xs">Proficiency</span>
                                         <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">{skill.proficiency ?? 85}%</span>
                                     </div>
@@ -280,52 +301,59 @@ const SkillsManagement = () => {
                 </div>
             )}
 
-            {/* Add / Edit Skill Modal */}
+            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-gray-900 border border-teal-500/20 rounded-2xl shadow-2xl w-full max-w-md">
+                    <div className="bg-white dark:bg-gray-900 border border-teal-500/20 rounded-2xl shadow-2xl w-full max-w-lg">
                         
-                        {/* Modal Header */}
                         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
                             <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                                 {editingSkillId ? 'Edit Skill' : 'Add New Skill'}
                             </h3>
-                            <button 
-                                onClick={closeModal}
-                                className="text-gray-500 hover:text-red-500 transition-colors p-1 cursor-pointer"
-                            >
+                            <button onClick={closeModal} className="text-gray-500 hover:text-red-500 transition-colors p-1 cursor-pointer">
                                 <FaTimes size={20} />
                             </button>
                         </div>
 
-                        {/* Modal Form */}
                         <form onSubmit={handleSubmit}>
                             <div className="p-6 space-y-5">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Skill Name</label>
                                     <input 
                                         type="text" 
-                                        name="name"
                                         required
                                         value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="e.g., React.js, Spring Boot" 
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        placeholder="e.g., JavaScript, Python, CSS3" 
                                         className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white" 
                                     />
                                 </div>
                                 
+                                {/* Multi-Select Categories */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                                    <select 
-                                        name="category"
-                                        value={formData.category}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white"
-                                    >
-                                        {CATEGORY_OPTIONS.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </select>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Categories <span className="text-xs text-gray-400 font-normal">(Select all that apply)</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {CATEGORY_OPTIONS.map(cat => {
+                                            const isSelected = formData.categories.includes(cat);
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={cat}
+                                                    onClick={() => toggleCategory(cat)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer border ${
+                                                        isSelected
+                                                            ? 'bg-teal-500 text-white border-teal-500 shadow-sm'
+                                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-teal-500/50'
+                                                    }`}
+                                                >
+                                                    {isSelected && <FaCheck size={10} />}
+                                                    {cat}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
 
                                 <div>
@@ -335,11 +363,10 @@ const SkillsManagement = () => {
                                     </label>
                                     <input 
                                         type="range" 
-                                        name="proficiency"
                                         min="10" 
                                         max="100" 
                                         value={formData.proficiency}
-                                        onChange={handleChange}
+                                        onChange={(e) => setFormData({ ...formData, proficiency: Number(e.target.value) })}
                                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-teal-500 mt-2" 
                                     />
                                 </div>
@@ -347,17 +374,15 @@ const SkillsManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description (Optional)</label>
                                     <textarea 
-                                        name="desc"
                                         rows="2"
                                         value={formData.desc}
-                                        onChange={handleChange}
+                                        onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
                                         placeholder="Brief description of experience with this tech..."
                                         className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm"
                                     />
                                 </div>
                             </div>
 
-                            {/* Modal Footer */}
                             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
                                 <button 
                                     type="button"
