@@ -272,15 +272,31 @@ const ProjectsManagement = () => {
                             </div>
 
                             <div>
-                                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Project Image URL</label>
-                                <input
-                                    type="text"
-                                    name='imageUrl'
-                                    value={formData.imageUrl}
-                                    onChange={handleChange}
-                                    placeholder="Enter image link..."
-                                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white"
-                                />
+                                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Project Image</label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setFormData({ ...formData, imageUrl: reader.result });
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+                file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold 
+                file:bg-teal-500 file:text-white hover:file:bg-teal-600 text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
+                                    />
+                                </div>
+                                {formData.imageUrl && (
+                                    <div className="mt-2 w-20 h-12 rounded-lg overflow-hidden border border-teal-500/30">
+                                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
                             </div>
 
                             <div className='flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800'>
