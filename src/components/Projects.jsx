@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
     ChevronLeft, ChevronRight, ExternalLink, Play, X, Monitor, Smartphone,
     Loader2, Download, Images, Cpu, ShoppingCart, AppWindow, Globe,
-    CheckCircle2, Clock, Zap, FolderOpen
+    CheckCircle2, Clock, Zap, FolderOpen, Brain, Palette, Gamepad2, Layers
 } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 
@@ -11,15 +11,24 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
 
 const GAP = 24 // gap-6 = 24px
 
-// Status / type එකට අනුව icon + colors
-const typeConfig = {
+// Category (project වර්ගය) අනුව icon + color
+const categoryConfig = {
+    'Web App': { icon: Globe, badge: 'bg-teal-500/90' },
     'E-Commerce': { icon: ShoppingCart, badge: 'bg-sky-500/90' },
     'Desktop App': { icon: AppWindow, badge: 'bg-violet-500/90' },
+    'Mobile App': { icon: Smartphone, badge: 'bg-pink-500/90' },
     'IoT': { icon: Cpu, badge: 'bg-orange-500/90' },
-    'Web': { icon: Globe, badge: 'bg-teal-500/90' },
-    'Active': { icon: Zap, badge: 'bg-emerald-500/90' },
-    'In Progress': { icon: Clock, badge: 'bg-amber-500/90' },
-    'Completed': { icon: CheckCircle2, badge: 'bg-teal-600/90' }
+    'AI / ML': { icon: Brain, badge: 'bg-fuchsia-500/90' },
+    'Designing': { icon: Palette, badge: 'bg-rose-500/90' },
+    'Game': { icon: Gamepad2, badge: 'bg-indigo-500/90' },
+    'Other': { icon: Layers, badge: 'bg-gray-500/90' }
+}
+
+// Status (project තත්ත්වය) අනුව icon + color
+const statusConfig = {
+    'Active': { icon: Zap, pill: 'bg-emerald-500/90' },
+    'In Progress': { icon: Clock, pill: 'bg-amber-500/90' },
+    'Completed': { icon: CheckCircle2, pill: 'bg-blue-500/90' }
 }
 
 const arrowBtn =
@@ -102,7 +111,8 @@ const Project = () => {
                 if (result.success) {
                     const formatted = result.data.map((p, index) => ({
                         id: p._id || index,
-                        type: p.status || 'Active',
+                        type: p.category || 'Other',
+                        status: p.status || 'Active',
                         image: p.imageUrl || '',
                         title: p.title,
                         desc: p.description,
@@ -122,7 +132,10 @@ const Project = () => {
         fetchProjects()
     }, [])
 
-    const filters = ['All', ...Object.keys(typeConfig).filter(t => projectsData.some(p => p.type === t))]
+    // Config එකේ පිළිවෙලට, data එකේ තියෙන categories විතරක් පෙන්නනවා
+    const knownCategories = Object.keys(categoryConfig).filter(t => projectsData.some(p => p.type === t))
+    const extraCategories = [...new Set(projectsData.map(p => p.type))].filter(t => !categoryConfig[t])
+    const filters = ['All', ...knownCategories, ...extraCategories]
 
     const filtered = activeType === 'All'
         ? projectsData
@@ -323,7 +336,9 @@ const Project = () => {
                         >
                             {filtered.map((project, idx) => {
                                 const demoBtn = demoButtonFor(project)
-                                const cfg = typeConfig[project.type]
+                                const cfg = categoryConfig[project.type]
+                                const statusCfg = statusConfig[project.status]
+                                const StatusIcon = statusCfg?.icon
                                 const TypeIcon = cfg?.icon || Globe
                                 const badgeColor = cfg?.badge || 'bg-black/60'
                                 const hasLinks = project.github || project.download || demoBtn
@@ -368,6 +383,14 @@ const Project = () => {
                                                 <TypeIcon size={12} />
                                                 {project.type}
                                             </span>
+
+                                            {/* Status pill */}
+                                            {statusCfg && (
+                                                <span className={`absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold text-white backdrop-blur-md shadow-md ${statusCfg.pill}`}>
+                                                    <StatusIcon size={11} />
+                                                    {project.status}
+                                                </span>
+                                            )}
 
                                             {/* Hover overlay button */}
                                             {demoBtn && (
