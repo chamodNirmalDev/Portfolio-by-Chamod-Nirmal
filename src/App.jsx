@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AnimatePresence, delay, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { FaReact, FaJava, FaPython, FaHtml5, FaPhp, FaCss3, FaDatabase, FaGithub, FaCode, FaTerminal, FaLaptopCode, FaServer, FaBug } from 'react-icons/fa';
 
 import Navbar from './components/NavBar';
@@ -23,9 +23,8 @@ import ProjectsManagement from './components/admin/ProjectsManagement';
 import Messages from './components/admin/Messages';
 import ExperienceEducation from './components/admin/ExperienceEducation';
 import Settings from './components/admin/Settings';
-import { Icon } from 'lucide-react';
 
-// Click කරද්දී මතු විය යුතු අයිකන් සහ ඒවාටම ආවේණික (Unique) වර්ණ
+// Click කරද්දී මතු විය යුතු අයිකන් සහ ඒවාටම ආවේණික වර්ණ
 const particleIcons = [
     { Icon: FaReact, color: "text-[#61DAFB]" },      // ලා නිල්
     { Icon: FaJava, color: "text-[#f89820]" },       // තැඹිලි
@@ -40,20 +39,32 @@ const particleIcons = [
 const App = () => {
     const [darkMode, setDarkMode] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
-    const [bgIcons, setBgIcons] = useState([]); // පාවෙන icon 15 ක් ගබඩා කරගන්නා state එක
+    const [bgIcons, setBgIcons] = useState([]);
+
+    // --- Page View Tracking API Call ---
+    useEffect(() => {
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        // එකම Session එකක් තුළ වාර ගණනාවක් Views වැඩි වීම වැළැක්වීමට sessionStorage පාවිච්චි කරයි
+        if (!sessionStorage.getItem('portfolio_viewed')) {
+            fetch(`${API_URL}/api/track/view`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        sessionStorage.setItem('portfolio_viewed', 'true');
+                    }
+                })
+                .catch(err => console.error('View tracking error:', err));
+        }
+    }, []);
 
     useEffect(() => {
-        // 1. පාවිය යුතු අයිකන් වර්ග ලැයිස්තුව
         const iconsArray = [FaCode, FaTerminal, FaLaptopCode, FaReact, FaPython, FaHtml5, FaDatabase, FaServer, FaBug, FaCss3];
-
-        // අයිකන් වලට ලබා දිය යුතු වර්ණ ලැයිස්තුව (Teal, Emerald, Blue, Orange, Purple)
         const colorsArray = ["text-teal-500/20", "text-emerald-500/20", "text-blue-500/20", "text-orange-500/20", "text-purple-500/20"];
 
-        // 2. අහඹු ලෙස අයිකන් 20ක් නිර්මාණය කිරීම
         const generatedIcons = Array.from({ length: 20 }).map((_, i) => ({
             id: i,
             Icon: iconsArray[Math.floor(Math.random() * iconsArray.length)],
-            colorClass: colorsArray[Math.floor(Math.random() * colorsArray.length)], // අහඹු වර්ණයක් තෝරාගැනීම
+            colorClass: colorsArray[Math.floor(Math.random() * colorsArray.length)],
             left: Math.floor(Math.random() * 90) + "%",
             top: Math.floor(Math.random() * 90) + "%",
             duration: Math.random() * 5 + 5,
@@ -61,19 +72,12 @@ const App = () => {
             delay: Math.random() * 2
         }));
 
-        // 3. හදපු අයිකන් State එකට ඇතුල් කිරීම
         setBgIcons(generatedIcons);
-
     }, []);
 
-    // --- Global Mouse Parallax State ---
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    // --- Global Click Particles State ---
     const [particles, setParticles] = useState([]);
 
-    // --- useCallback මගින් Function එක ස්ථාවර කිරීම ---
-    // මවුස් එක චලනය වී Component එක re-render වුවද මෙම function එක වෙනස් නොවේ.
-    // එමගින් Preloader එක නැවත නැවත මුල සිට ආරම්භ වීම වළක්වයි.
     const handleLoadingComplete = useCallback(() => {
         setIsLoading(false);
     }, []);
@@ -86,24 +90,20 @@ const App = () => {
         });
         document.documentElement.classList.add('dark');
 
-        // 1. Global Mouse Listener (Parallax සඳහා)
         const handleMouseMove = (e) => {
             const x = (e.clientX / window.innerWidth - 0.5) * 40;
             const y = (e.clientY / window.innerHeight - 0.5) * 40;
             setMousePos({ x, y });
         };
 
-        // 2. Global Click Listener (Particles සඳහා)
         const handleGlobalClick = (e) => {
-            // අහඹු ලෙස අයිකනය සහ එහි වර්ණය තෝරාගැනීම
             const randomParticle = particleIcons[Math.floor(Math.random() * particleIcons.length)];
-
             const newParticle = {
                 id: Date.now() + Math.random(),
                 x: e.clientX,
                 y: e.clientY,
                 Icon: randomParticle.Icon,
-                color: randomParticle.color // අයිකනයට අදාළ නියම වර්ණය
+                color: randomParticle.color
             };
 
             setParticles((prev) => [...prev, newParticle]);
@@ -139,10 +139,8 @@ const App = () => {
                 : "bg-linear-to-br from-gray-50 via-teal-100 to-emerald-300 min-h-screen text-gray-900 overflow-hidden relative"
         }>
 
-            {/* --- Global Background Animations (මුළු වෙබ් අඩවියටම) --- */}
+            {/* --- Global Background Animations --- */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-
-                {/* 1. Mouse Parallax Glows (Mobile වලටත් පේන්න Breathing Effect එකක් එක්ක) */}
                 <motion.div
                     animate={{
                         x: -mousePos.x * 1.5,
@@ -170,7 +168,6 @@ const App = () => {
                     className="absolute bottom-10 right-4 md:right-10 w-64 h-64 md:w-96 md:h-96 bg-emerald-400/30 dark:bg-emerald-500/20 rounded-full blur-[90px] md:blur-[120px]"
                 />
 
-                {/* 2. Floating Code Icons (Random Colors - Mobile එකටත් සහාය දක්වයි) */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
                     {bgIcons.map((item) => (
                         <motion.div
@@ -185,14 +182,11 @@ const App = () => {
                             className={`absolute ${item.colorClass}`}
                             style={{ left: item.left, top: item.top }}
                         >
-                            {/* Mobile වලදී w-5 h-5 (කුඩා) සහ Laptop වලදී md:w-10 md:h-10 (ලොකු) ලෙස පෙනේ */}
                             <item.Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-10 md:h-10 opacity-60" />
                         </motion.div>
                     ))}
                 </div>
 
-                {/* 3. Click Particle Effects */}
-                {/* 3. Click Particle Effects */}
                 {particles.map((particle) => (
                     <motion.div
                         key={particle.id}
@@ -204,7 +198,6 @@ const App = () => {
                             x: (Math.random() - 0.5) * 60
                         }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        // මෙතන අලුතින් 'drop-shadow-[0_0_8px_currentColor]' එකතු කර ඇත
                         className={`absolute z-100 ${particle.color} drop-shadow-[0_0_8px_currentColor]`}
                         style={{ left: particle.x - 15, top: particle.y - 15 }}
                     >
@@ -215,7 +208,6 @@ const App = () => {
 
             <AnimatePresence mode="wait">
                 {isLoading && (
-                    // {/* මෙතන onLoadingComplete එකට අලුතින් හැදූ handleLoadingComplete ලබා දී ඇත */}
                     <Preloader key="preloader" onLoadingComplete={handleLoadingComplete} />
                 )}
             </AnimatePresence>

@@ -17,17 +17,53 @@ const AdminLogin = () => {
   /*Component එක ඇතුළේ යම්කිසි දත්තයක් තාවකාලිකව මතක තියාගන්න එකයි.
       useState(false): මේක React වලින් දෙන විශේෂ මෙවලමක් (Hook එකක්). මෙතන වරහන් ඇතුළේ තියෙන false කියන්නේ ආරම්භක අගයයි (Initial value). එනම් වෙබ් පිටුව ලෝඩ් වෙද්දී පාස්වර්ඩ් එක මුලින්ම පෙන්වන්නේ නැත (false) කියන එකයි.
       showPassword: මේක තමයි අර දත්තය ගබඩා කරගෙන ඉන්න පෙට්ටිය (Variable). දැනට මේක ඇතුළේ තියෙන්නේ false කියන අගයයි. අපි Password Input කොටුවේ type එක (text ද, password ද යන්න) තීරණය කරන්න පාවිච්චි කරන්නේ මේ පෙට්ටිය ඇතුළේ තියෙන අගයයි.
-      setShowPassword: මේක තමයි අර showPassword පෙට්ටියේ තියෙන අගය වෙනස් කරන්න අපිට දීලා තියෙන රිමෝට් කන්ට්‍රෝල් එක (Function එක). අපිට පාස්වර්ඩ් එක පෙන්වන්න ඕනේ වුණාම setShowPassword(true) කියලා දුන්නම, අර පෙට්ටියේ අගය ස්වයංක්‍රීයවම true වෙනවා.*/ 
+      setShowPassword: මේක තමයි අර showPassword පෙට්ටියේ තියෙන අගය වෙනස් කරන්න අපිට දීලා තියෙන රිමෝට් කන්ට්‍රෝල් එක (Function එක). අපිට පාස්වර්ඩ් එක පෙන්වන්න ඕනේ වුණාම setShowPassword(true) කියලා දුන්නම, අර පෙට්ටියේ අගය ස්වයංක්‍රීයවම true වෙනවා.*/
   const [showPassword, setShowPassword] = useState(false);
+
+  // මෙහිදී පරිශීලකයාගේ Username, Password, Error Message සහ Loading State වැනි දත්ත තාවකාලිකව මතක තබා ගැනීමට useState Hook එක භාවිතා කරමින් පෙට්ටි (States) හතරක් නිර්මාණය කර ඇත.
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Backend API URL එක ලබා ගැනීම. මෙය .env ගොනුවේ VITE_BACKEND_URL ලෙස සදහන් කර ඇති අගය හෝ දේශීය සංවර්ධන (Local Development) සඳහා 'http://localhost:5000' ලෙස පෙරනිමි අගයක් ලබා දේ.
+  const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   /*පරිශීලකයා "Login to Dashboard" බොත්තම එබූ විට (නැතහොත් ෆෝම් එක Submit කළ විට) ක්‍රියාත්මක වන ප්‍රධාන ක්‍රියාවලිය.
       const handleLogin = (e) => { ... } : මෙය 'Arrow Function' එකකි. මෙහි ඇති e අකුරෙන් නියෝජනය කරන්නේ Event (සිදුවීම) යන්නයි. එනම් යමෙකු ෆෝම් එක Submit කිරීම නැමැති සිදුවීමයි. ඒ සිදුවීමට අදාළ සියලුම විස්තර මේ e අකුර හරහා අල්ලා ගනී.
       e.preventDefault(); : මෙය මෙහි ඇති ඉතාමත් වැදගත් පේළියකි. සාමාන්‍යයෙන් අන්තර්ජාලයේ ඇති HTML form එකක් Submit කළාම මුළු වෙබ් පිටුවම සම්පූර්ණයෙන්ම Refresh (Reload) වෙනවා. නමුත් React කියන්නේ Single Page Application එකක් නිසා අපි පිටුව Refresh වෙනවට කොහෙත්ම කැමති නැහැ. මේ පේළියෙන් කරන්නේ අන්න ඒ සාමාන්‍ය විදිහට පිටුව Refresh වෙන (Default behavior) එක බලහත්කාරයෙන්ම නතර කරන එකයි.
       navigate('/admin/dashboard'); : පිටුව Refresh වීම නැවැත්වූවාට පසුව, කිසිම ප්‍රමාදයකින් තොරව ක්ෂණිකවම පරිශීලකයාව අපි කලින් ලබාගත් navigate නැමැති ටැක්සිය හරහා /admin/dashboard කියන අලුත් පිටුවට (Admin Dashboard එකට) රැගෙන යනවා.*/
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/admin');
-  }
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem('adminToken', data.token);
+
+        navigate('/admin');
+
+      } else {
+        setError(data.message || 'Invalid Username or Password!');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Server connection failed! Please check if backend is running.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
 
@@ -60,6 +96,11 @@ const AdminLogin = () => {
           Admin Portal
         </h2>
 
+        {error && (
+          <div className='mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/40 text-red-600 dark:text-red-400 text-sm text-center font-medium'>
+            {error}
+          </div>
+        )}
         {/* දත්ත ලබා ගන්නා ෆෝම් එක (Form) ආරම්භ වන්නේ සහ එහි මූලික හැසිරීම තීරණය කරන්නේ.
               onSubmit={handleLogin}: සාමාන්‍යයෙන් කෙනෙක් Username, Password ගහලා "Login" බොත්තම එබුවම හරි, කීබෝඩ් එකේ 'Enter' එබුවම හරි මේ ෆෝම් එක Submit වෙනවා. මේ කේතයෙන් කියන්නේ, "ෆෝම් එක Submit වුණ ගමන් අපි කලින් හදපු handleLogin කියන ෆන්ක්ෂන් එක ක්‍රියාත්මක කරන්න" කියන එකයි. ඒ නිසා තමයි ලොගින් බොත්තම එබූ විගස කිසිම රිෆ්‍රෙෂ් වීමක් නැතුව ඔයාව Dashboard එකට අරගෙන යන්නේ.
               className="space-y-6": ෆෝම් එක ඇතුළේ තියෙන ප්‍රධාන කොටස් (එනම් Username කොටුව, Password කොටුව සහ Login බොත්තම) අතර සිරස් අතට (ඉහළ සිට පහළට) සමාන හිස් පරතරයක් තැබීමයි. මේ නිසා ඔබ අමුතුවෙන් එකින් එකට Margin ලබා දිය යුතු නැහැ, මේ එක වචනයෙන් ඒ ඔක්කොම ටික එකිනෙක ගෑවෙන්නේ නැතිව ලස්සනට පෙළගස්වනවා. */}
@@ -80,12 +121,15 @@ const AdminLogin = () => {
                 placeholder="Enter username": කොටුව හිස්ව ඇති විට පරිශීලකයාට උපදෙසක් ලෙස ළා පැහැයෙන් පෙන්වන ඉඟි පාඨයයි.
                 required: මෙම කොටුව හිස්ව තබා ෆෝම් එක Submit කළ නොහැකි බවට පනවන අනිවාර්ය නීතියයි.  */}
           <div>
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="block text-sm font-medium mb-2 dark:text-gray-200 text-gray-700">Username</label>
             <input
               type="text"
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-teal-200 dark:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 dark:text-white border border-teal-200 dark:border-emerald-800 
+              focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Enter username"
-              // required
+              required
             />
           </div>
 
@@ -101,20 +145,25 @@ const AdminLogin = () => {
               අයිකනය මාරු වීම
                 {showPassword ? <FaEyeSlash size="{20}"/> : <FaEye size="{20}"/>}: පාස්වර්ඩ් එක පේන්න තියෙන වෙලාවට ඇහැ හරහා ඉරක් ගිය අයිකනයත් (FaEyeSlash), පාස්වර්ඩ් එක හැංගිලා තියෙන වෙලාවට සාමාන්‍ය ඇසේ අයිකනයත් (FaEye) මාරුවෙන් මාරුවට පෙන්වන්නේ මේ පේළියෙනි.*/}
           <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
-            <div className='relative'>
+            <label className="block text-sm font-medium mb-2 dark:text-gray-200 text-gray-700">
+              Password
+            </label>
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-teal-200 dark:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-11 rounded-lg bg-gray-50 dark:bg-gray-900/50 dark:text-white border border-teal-200 dark:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 placeholder="Enter password"
-                // required
+                required
               />
 
               <button
-              type='button'
-              onClick={() => setShowPassword(!showPassword)}
-              className='absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-teal-500 transition-colors'>
-                {showPassword ? <FaEyeSlash size={20}/> : <FaEye size={20} />}
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-teal-500 transition-colors cursor-pointer"
+              >
+                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
               </button>
             </div>
           </div>
@@ -131,10 +180,13 @@ const AdminLogin = () => {
               සජීවීකරණය සහ Hover Effects (Animations):
                 hover:from-teal-600 hover:to-emerald-700: ඔයා මවුස් එක බොත්තම උඩට ගෙනිච්චම (Hover කළාම) අර පාට දෙකම ස්වයංක්‍රීයවම ටිකක් තද පැහැයකට හැරෙනවා.
                 transition-all duration-300 transform hover:scale-[1.02]: මේක ඉතාමත් ආකර්ෂණීය UI අංගයක්. මවුස් එක බොත්තම උඩට ගෙනිච්චම බොත්තම මිලි තත්පර 300ක කාලයක් (duration-300) ඇතුළත ඉතා මෘදු විදිහට 2% කින් ලොකු වෙනවා (scale-[1.02]). මේකෙන් බොත්තමට නියම 3D / Interactive (ක්ලික් කරන්න හිතෙන) පෙනුමක් ලැබෙනවා.*/}
+          {/* Submit Button එක */}
           <button
             type="submit"
-            className="w-full py-3 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02]">
-            Login to Dashboard
+            disabled={isLoading}
+            className="w-full py-3 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {isLoading ? 'Verifying...' : 'Login to Dashboard'}
           </button>
         </form>
 

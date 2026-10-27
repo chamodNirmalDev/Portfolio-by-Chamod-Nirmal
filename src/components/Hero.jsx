@@ -25,7 +25,7 @@ const AnimatedCounter = ({ to }) => {
     return <span>{currentValue}</span>;
 };
 
-// --- Animated Download Button Component ---
+// --- Animated Download Button Component with Backend Tracking ---
 const AnimatedDownloadButton = ({ cvFile }) => {
     const [downloadState, setDownloadState] = useState('idle');
 
@@ -34,6 +34,11 @@ const AnimatedDownloadButton = ({ cvFile }) => {
 
         // Downloading තත්ත්වයට පත් කිරීම
         setDownloadState('downloading');
+
+        // --- Real-time CV Download Tracking to Backend / MongoDB ---
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        fetch(`${API_URL}/api/track/cv`, { method: 'POST' })
+            .catch(err => console.error('CV download tracking error:', err));
 
         // ඇත්තටම CV එක Download වීමට ලබා දෙන කේතය
         const link = document.createElement('a');
@@ -58,7 +63,7 @@ const AnimatedDownloadButton = ({ cvFile }) => {
         <button
             onClick={handleDownload}
             disabled={downloadState !== 'idle'}
-            className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center rounded-full text-white font-semibold bg-linear-to-r from-teal-500 to-emerald-600 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap disabled:cursor-wait disabled:hover:scale-100 disabled:hover:shadow-none'
+            className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center rounded-full text-white font-semibold bg-linear-to-r from-teal-500 to-emerald-600 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap disabled:cursor-wait disabled:hover:scale-100 disabled:hover:shadow-none cursor-pointer'
         >
             <AnimatePresence mode="wait">
 
@@ -266,7 +271,7 @@ const Hero = () => {
                         {/* --- Buttons Section --- */}
                         <div className='flex flex-col sm:flex-row gap-5 w-full sm:w-auto items-center mt-4'>
 
-                            {/* අලුතින් එක් කළ Animated Download Button එක */}
+                            {/* Real-time CV Download Button */}
                             <AnimatedDownloadButton cvFile={CV} />
 
                             <a href="#contact"
@@ -276,7 +281,7 @@ const Hero = () => {
                                         behavior: 'smooth'
                                     });
                                 }} className='w-full sm:w-auto group'>
-                                <button className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border-2 dark:border-teal-500 border-teal-600 dark:text-emerald-100 text-teal-900 font-semibold dark:hover:bg-emerald-600 hover:bg-teal-600 hover:text-white hover:shadow-[0_0_40px_rgba(20,184,166,0.3)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap'>
+                                <button className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border-2 dark:border-teal-500 border-teal-600 dark:text-emerald-100 text-teal-900 font-semibold dark:hover:bg-emerald-600 hover:bg-teal-600 hover:text-white hover:shadow-[0_0_40px_rgba(20,184,166,0.3)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap cursor-pointer'>
                                     <motion.div
                                         className="absolute inset-0 z-0 w-1/3 bg-linear-to-r from-transparent via-teal-500/30 dark:via-emerald-400/30 to-transparent skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"
                                     />
@@ -294,4 +299,4 @@ const Hero = () => {
     )
 }
 
-export default Hero
+export default Hero;
