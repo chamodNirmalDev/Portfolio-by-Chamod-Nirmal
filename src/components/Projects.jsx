@@ -72,7 +72,7 @@ const demoButtonFor = (project) => {
 
 // Loading skeleton card
 const SkeletonCard = () => (
-    <div className="w-[85%] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 rounded-3xl overflow-hidden border border-gray-100 dark:border-zinc-800/60 dark:bg-zinc-900/40 bg-white animate-pulse">
+    <div className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 rounded-3xl overflow-hidden border border-gray-100 dark:border-zinc-800/60 dark:bg-zinc-900/40 bg-white animate-pulse">
         <div className="aspect-video bg-gray-200 dark:bg-zinc-800" />
         <div className="p-6 space-y-3">
             <div className="h-5 w-2/3 rounded bg-gray-200 dark:bg-zinc-800" />
@@ -312,7 +312,7 @@ const Project = () => {
 
                 {/* --- Carousel --- */}
                 {isLoading ? (
-                    <div className="flex gap-6 overflow-hidden px-1 pt-2 pb-8">
+                    <div className="flex gap-6 overflow-hidden px-[7.5%] sm:px-1 pt-2 pb-8">
                         <SkeletonCard /><SkeletonCard /><SkeletonCard />
                     </div>
                 ) : filtered.length === 0 ? (
@@ -332,7 +332,7 @@ const Project = () => {
                     >
                         <div
                             ref={scrollRef}
-                            className="flex gap-6 overflow-x-auto snap-x snap-mandatory px-1 pt-2 pb-8 hide-scrollbar"
+                            className="flex gap-6 overflow-x-auto snap-x snap-mandatory px-[7.5%] sm:px-1 pt-2 pb-8 hide-scrollbar [&>*:first-child]:ml-auto [&>*:last-child]:mr-auto"
                         >
                             {filtered.map((project, idx) => {
                                 const demoBtn = demoButtonFor(project)
@@ -350,7 +350,7 @@ const Project = () => {
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true, amount: 0.2 }}
                                         transition={{ duration: 0.5, delay: Math.min(idx, 3) * 0.08 }}
-                                        className="w-[85%] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 snap-start group
+                                        className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0 snap-center sm:snap-start group
                                         rounded-3xl overflow-hidden border transition-all duration-300 dark:border-zinc-800/70
                                         border-gray-200/80 dark:bg-zinc-900/50 bg-white/80 backdrop-blur-md
                                         hover:-translate-y-2 hover:border-teal-500/50 dark:hover:border-emerald-500/50
