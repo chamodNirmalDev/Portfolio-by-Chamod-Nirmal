@@ -164,7 +164,7 @@ const Project = () => {
             el?.removeEventListener('scroll', updateArrows)
             window.removeEventListener('resize', updateArrows)
         }
-    }, [updateArrows, projectsData])
+    }, [updateArrows, projectsData, activeType, isLoading])
 
     useEffect(() => {
         scrollRef.current?.scrollTo({ left: 0, behavior: 'smooth' })
