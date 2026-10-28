@@ -41,6 +41,20 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [bgIcons, setBgIcons] = useState([]);
 
+    // App component එක තුළ:
+    useEffect(() => {
+        // 1. Browser එකේ automatic scroll restore වෙන එක නවත්වයි
+        if ('scrollRestoration' in window.history) {
+            window.history.scrollRestoration = 'manual';
+        }
+
+        // 2. URL එකේ hash එකක් තිබේ නම් එය ඉවත් කර පිටුවේ උඩටම යවයි
+        if (window.location.hash) {
+            window.history.replaceState(null, '', window.location.pathname);
+        }
+        window.scrollTo(0, 0);
+    }, []);
+
     // --- Page View Tracking API Call ---
     useEffect(() => {
         const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';

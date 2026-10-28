@@ -27,7 +27,13 @@ const About = () => {
             .catch(err => console.error('Error fetching about data:', err));
     }, []);
 
-    if (!aboutData) return null;
+    if (!aboutData) return null; if (!aboutData) {
+        return (
+            <section id='about' className='min-h-[50vh] flex items-center justify-center relative overflow-hidden'>
+                <div className='w-8 h-8 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin'></div>
+            </section>
+        );
+    }
 
     // Database එකේ සැබවින්ම link එකක් ඇති social media පමණක් පෙන්වයි
     const activeSocialLinks = Object.entries(aboutData.socials || {})
@@ -40,7 +46,7 @@ const About = () => {
     return (
         <section id='about' className='min-h-screen flex items-center py-20 pt-2 px-4 sm:px-6 overflow-hidden relative'>
             <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10'>
-                
+
                 {/* වම්පස අකුරු කොටස */}
                 <div className='order-2 lg:order-1 flex flex-col items-center lg:items-start text-center lg:text-left' data-aos='fade-right'>
                     <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 mb-4'>
@@ -99,10 +105,10 @@ const About = () => {
 
                         <div className='relative z-10 w-full h-full rounded-[40%_60%_60%/40%_60%_70%] overflow-hidden border-2 border-teal-500/40 shadow-2xl bg-gray-900 flex items-center justify-center'>
                             {aboutData.avatarUrl ? (
-                                <img 
-                                    src={aboutData.avatarUrl} 
-                                    alt="About Profile" 
-                                    className='w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700' 
+                                <img
+                                    src={aboutData.avatarUrl}
+                                    alt="About Profile"
+                                    className='w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700'
                                 />
                             ) : null}
                         </div>

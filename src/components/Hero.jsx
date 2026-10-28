@@ -28,7 +28,7 @@ const AnimatedDownloadButton = ({ cvUrl }) => {
         if (downloadState !== 'idle' || !cvUrl) return;
         setDownloadState('downloading');
 
-        fetch(`${API_URL}/api/track/cv`, { method: 'POST' }).catch(() => {});
+        fetch(`${API_URL}/api/track/cv`, { method: 'POST' }).catch(() => { });
 
         const link = document.createElement('a');
         link.href = cvUrl;
@@ -90,7 +90,13 @@ const Hero = () => {
             .catch(err => console.error(err));
     }, []);
 
-    if (!profile) return null;
+    if (!profile) {
+        return (
+            <section id='home' className='min-h-screen flex items-center justify-center relative overflow-hidden'>
+                <div className='w-10 h-10 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin'></div>
+            </section>
+        );
+    }
 
     const animatedTitle = profile.jobTitle ? `< ${profile.jobTitle} >` : '';
     const displayName = profile.fullName ? profile.fullName.split(' ')[0] : '';
