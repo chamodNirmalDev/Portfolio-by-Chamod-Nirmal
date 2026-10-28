@@ -1,23 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaUser, FaLock, FaGlobe, FaSave, FaCamera, FaGithub, FaLinkedin, FaYoutube, FaFacebook, FaInstagram, FaTiktok, FaTwitter, FaCheckCircle } from 'react-icons/fa';
-import { Loader2 } from 'lucide-react';
+import { 
+    FaUser, FaLock, FaGlobe, FaSave, FaCamera, FaFilePdf, 
+    FaWhatsapp, FaMapMarkerAlt, FaEnvelope, FaEye, FaEyeSlash, 
+    FaGithub, FaLinkedin, FaYoutube, FaFacebook, FaInstagram, FaTiktok, FaTwitter 
+} from 'react-icons/fa';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const Settings = () => {
-    const [activeTab, setActiveTab] = useState('profile');
+    const [activeTab, setActiveTab] = useState('hero'); // 'hero', 'about', 'contact', 'social', 'security'
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
-    const fileInputRef = useRef(null);
 
-    // Profile & Socials State
-    const [profileData, setProfileData] = useState({
-        fullName: '',
-        jobTitle: '',
-        contactEmail: '',
-        bio: '',
+    const avatarInputRef = useRef(null);
+    const cvInputRef = useRef(null);
+
+    // Profile & Website Sections State
+    const [formData, setFormData] = useState({
+        fullName: 'Chamod Nirmal',
+        jobTitle: 'Full Stack Developer',
+        contactEmail: 'chamod@example.com',
         avatarUrl: '',
+        cvUrl: '',
+        // Hero
+        heroTitlePrefix: "Hello, I'm",
+        heroBio: '',
+        yearsExperience: 3,
+        projectsDone: 30,
+        happyClients: 10,
+        // About
+        aboutTitle: 'Turning Ideas Into',
+        aboutSubtitle: 'Digital Reality',
+        aboutBio: '',
+        // Contact
+        whatsappNumber: '94711234567',
+        locationText: 'Piliyandala, Sri Lanka',
+        mapCoordinates: '6.769238,79.94509',
+        // Socials
         socials: {
             linkedin: '',
             github: '',
@@ -29,67 +50,66 @@ const Settings = () => {
         }
     });
 
-    // Password Change State
-    const [passwords, setPasswords] = useState({
+    // Security State
+    const [securityData, setSecurityData] = useState({
         currentPassword: '',
+        newUsername: '',
         newPassword: '',
         confirmPassword: ''
     });
 
-    // 1. Fetch Profile Data on Load
+    const [showPasswords, setShowPasswords] = useState({
+        current: false,
+        new: false,
+        confirm: false
+    });
+
     useEffect(() => {
-        const fetchProfile = async () => {
+        const fetchSettings = async () => {
             setIsLoading(true);
             try {
                 const res = await fetch(`${API_URL}/api/profile`);
                 const result = await res.json();
                 if (result.success && result.data) {
-                    setProfileData({
-                        fullName: result.data.fullName || '',
-                        jobTitle: result.data.jobTitle || '',
-                        contactEmail: result.data.contactEmail || '',
-                        bio: result.data.bio || '',
-                        avatarUrl: result.data.avatarUrl || '',
-                        socials: {
-                            linkedin: result.data.socials?.linkedin || '',
-                            github: result.data.socials?.github || '',
-                            youtube: result.data.socials?.youtube || '',
-                            facebook: result.data.socials?.facebook || '',
-                            instagram: result.data.socials?.instagram || '',
-                            tiktok: result.data.socials?.tiktok || '',
-                            twitter: result.data.socials?.twitter || ''
-                        }
-                    });
+                    setFormData(prev => ({
+                        ...prev,
+                        ...result.data,
+                        socials: { ...prev.socials, ...(result.data.socials || {}) }
+                    }));
                 }
             } catch (err) {
-                console.error('Error fetching settings:', err);
+                console.error('Fetch settings error:', err);
             } finally {
                 setIsLoading(false);
             }
         };
-
-        fetchProfile();
+        fetchSettings();
     }, []);
 
-    // 2. Avatar File Chooser
+    // File Handlers (Avatar & CV)
     const handleAvatarUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        if (file.size > 2 * 1024 * 1024) return alert('Avatar must be under 2MB');
+        const reader = new FileReader();
+        reader.onloadend = () => setFormData(prev => ({ ...prev, avatarUrl: reader.result }));
+        reader.readAsDataURL(file);
+    };
 
-        if (file.size > 2 * 1024 * 1024) {
-            alert('Avatar image must be less than 2MB');
-            return;
-        }
-
+    const handleCvUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 4 * 1024 * 1024) return alert('CV file must be under 4MB');
         const reader = new FileReader();
         reader.onloadend = () => {
-            setProfileData(prev => ({ ...prev, avatarUrl: reader.result }));
+            setFormData(prev => ({ ...prev, cvUrl: reader.result }));
+            alert('CV file uploaded and ready to save!');
         };
         reader.readAsDataURL(file);
     };
 
-    // 3. Save Profile & Social Changes
-    const handleSaveProfileAndSocials = async () => {
+    // Save All Website Settings
+    const handleSaveSettings = async () => {
         const token = localStorage.getItem('adminToken');
         if (!token) return alert('Session expired. Please log in again.');
 
@@ -101,32 +121,27 @@ const Settings = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(profileData)
+                body: JSON.stringify(formData)
             });
-
             const result = await res.json();
             if (result.success) {
                 setSaveSuccess(true);
                 setTimeout(() => setSaveSuccess(false), 3000);
             } else {
-                alert(result.error || 'Failed to update settings');
+                alert(result.error || 'Failed to save settings');
             }
         } catch (err) {
-            console.error('Save settings error:', err);
-            alert('Something went wrong. Please check your backend connection.');
+            console.error('Save error:', err);
         } finally {
             setIsSaving(false);
         }
     };
 
-    // 4. Change Password Handler
-    const handleChangePassword = async (e) => {
+    // Update Security Credentials
+    const handleUpdateCredentials = async (e) => {
         e.preventDefault();
-        if (passwords.newPassword !== passwords.confirmPassword) {
+        if (securityData.newPassword && securityData.newPassword !== securityData.confirmPassword) {
             return alert('New password and confirm password do not match!');
-        }
-        if (passwords.newPassword.length < 6) {
-            return alert('New password must be at least 6 characters long.');
         }
 
         const token = localStorage.getItem('adminToken');
@@ -134,28 +149,27 @@ const Settings = () => {
 
         setIsSaving(true);
         try {
-            const res = await fetch(`${API_URL}/api/admin/change-password`, {
+            const res = await fetch(`${API_URL}/api/admin/update-credentials`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    currentPassword: passwords.currentPassword,
-                    newPassword: passwords.newPassword
+                    currentPassword: securityData.currentPassword,
+                    newUsername: securityData.newUsername,
+                    newPassword: securityData.newPassword
                 })
             });
-
             const result = await res.json();
             if (result.success) {
-                alert('Password changed successfully!');
-                setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                alert('Credentials updated successfully!');
+                setSecurityData({ currentPassword: '', newUsername: '', newPassword: '', confirmPassword: '' });
             } else {
-                alert(result.error || 'Failed to change password');
+                alert(result.error || 'Failed to update credentials');
             }
         } catch (err) {
-            console.error('Password change error:', err);
-            alert('Error updating password.');
+            console.error('Update security error:', err);
         } finally {
             setIsSaving(false);
         }
@@ -172,282 +186,292 @@ const Settings = () => {
 
     return (
         <div className="flex-1 p-6 overflow-y-auto relative">
-            
-            {/* Top Header Section */}
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Settings</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your account information, public socials, and login credentials.</p>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Website & Account Settings</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Manage contents for Hero, About, Contact sections, CV file, and Admin credentials.
+                </p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8 pb-8">
-                
-                {/* Left Sidebar for Settings Tabs */}
+                {/* Navigation Tabs */}
                 <div className="w-full lg:w-64 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 shrink-0">
-                    <button 
-                        type="button"
-                        onClick={() => setActiveTab('profile')}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap cursor-pointer ${activeTab === 'profile' ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                        <FaUser size={18} /> Profile Info
-                    </button>
-                    <button 
-                        type="button"
-                        onClick={() => setActiveTab('social')}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap cursor-pointer ${activeTab === 'social' ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                        <FaGlobe size={18} /> Social Links
-                    </button>
-                    <button 
-                        type="button"
-                        onClick={() => setActiveTab('security')}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap cursor-pointer ${activeTab === 'security' ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                        <FaLock size={18} /> Security
-                    </button>
+                    {[
+                        { id: 'hero', label: 'Hero Section & CV', icon: FaUser },
+                        { id: 'about', label: 'About Section', icon: FaGlobe },
+                        { id: 'contact', label: 'Contact & Map Info', icon: FaEnvelope },
+                        { id: 'social', label: 'Social Media Links', icon: FaGlobe },
+                        { id: 'security', label: 'Security & Login', icon: FaLock },
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap cursor-pointer text-sm ${activeTab === tab.id ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                        >
+                            <tab.icon size={16} /> {tab.label}
+                        </button>
+                    ))}
                 </div>
 
-                {/* Right Content Area */}
+                {/* Form Container */}
                 <div className="flex-1">
                     <div className="backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-6 lg:p-8 shadow-sm">
-                        
-                        {/* 1. Profile Tab Content */}
-                        {activeTab === 'profile' && (
+
+                        {/* 1. HERO SECTION & CV */}
+                        {activeTab === 'hero' && (
                             <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">Profile Information</h3>
-                                
-                                {/* Profile Picture Upload */}
-                                <div className="flex items-center gap-6 mb-6">
-                                    <div className="relative group">
-                                        <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-800 border-2 border-teal-500 overflow-hidden flex items-center justify-center">
-                                            {profileData.avatarUrl ? (
-                                                <img src={profileData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <FaUser size={40} className="text-gray-400" />
-                                            )}
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3">Hero Section Details</h3>
+
+                                {/* Profile Picture & CV Upload Row */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40">
+                                    {/* Avatar */}
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative group shrink-0">
+                                            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 border-2 border-teal-500 overflow-hidden flex items-center justify-center">
+                                                {formData.avatarUrl ? (
+                                                    <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <FaUser size={32} className="text-gray-400" />
+                                                )}
+                                            </div>
+                                            <input type="file" ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                                            <button type="button" onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 p-2 bg-teal-500 text-white rounded-full shadow-lg hover:bg-teal-600 transition-colors cursor-pointer">
+                                                <FaCamera size={12} />
+                                            </button>
                                         </div>
-                                        <input 
-                                            type="file" 
-                                            ref={fileInputRef} 
-                                            accept="image/*" 
-                                            onChange={handleAvatarUpload} 
-                                            className="hidden" 
-                                        />
-                                        <button 
+                                        <div>
+                                            <h4 className="text-sm font-bold text-gray-800 dark:text-white">Profile Photo</h4>
+                                            <p className="text-xs text-gray-500 mt-0.5">JPG/PNG under 2MB</p>
+                                        </div>
+                                    </div>
+
+                                    {/* CV Chooser */}
+                                    <div className="flex flex-col justify-center">
+                                        <label className="text-sm font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-1.5">
+                                            <FaFilePdf className="text-red-500" /> Upload PDF CV
+                                        </label>
+                                        <input type="file" ref={cvInputRef} accept="application/pdf" onChange={handleCvUpload} className="hidden" />
+                                        <button
                                             type="button"
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="absolute bottom-0 right-0 p-2 bg-teal-500 text-white rounded-full shadow-lg hover:bg-teal-600 transition-colors cursor-pointer"
-                                            title="Upload Photo">
-                                            <FaCamera size={14} />
+                                            onClick={() => cvInputRef.current?.click()}
+                                            className="px-4 py-2 rounded-xl border border-dashed border-teal-500/50 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/20 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                                        >
+                                            <FaFilePdf />
+                                            {formData.cvUrl ? 'Replace Uploaded CV (Ready)' : 'Choose PDF from Computer (Max 4MB)'}
                                         </button>
                                     </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <h4 className="text-lg font-bold text-gray-800 dark:text-white">Profile Picture</h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Recommended size: 500x500px. Maximum size: 2MB.</p>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                                        <input type="text" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Job Title (Typing Animation)</label>
+                                        <input type="text" value={formData.jobTitle} onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Hero Bio Paragraph</label>
+                                        <textarea rows="3" value={formData.heroBio} onChange={(e) => setFormData({ ...formData, heroBio: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white leading-relaxed" />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Stats Counter */}
+                                <div className="grid grid-cols-3 gap-3 pt-2">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
-                                        <input 
-                                            type="text" 
-                                            value={profileData.fullName}
-                                            onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                        />
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Years Experience</label>
+                                        <input type="number" value={formData.yearsExperience} onChange={(e) => setFormData({ ...formData, yearsExperience: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Title</label>
-                                        <input 
-                                            type="text" 
-                                            value={profileData.jobTitle}
-                                            onChange={(e) => setProfileData({ ...profileData, jobTitle: e.target.value })}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                        />
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Projects Done</label>
+                                        <input type="number" value={formData.projectsDone} onChange={(e) => setFormData({ ...formData, projectsDone: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address (For Contact / Notifications)</label>
-                                        <input 
-                                            type="email" 
-                                            value={profileData.contactEmail}
-                                            onChange={(e) => setProfileData({ ...profileData, contactEmail: e.target.value })}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Happy Clients</label>
+                                        <input type="number" value={formData.happyClients} onChange={(e) => setFormData({ ...formData, happyClients: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
                                     </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio / Short Description</label>
-                                        <textarea 
-                                            rows="4" 
-                                            value={profileData.bio}
-                                            onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm leading-relaxed"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 flex justify-end">
-                                    <button 
-                                        type="button"
-                                        onClick={handleSaveProfileAndSocials}
-                                        disabled={isSaving}
-                                        className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50">
-                                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : saveSuccess ? <FaCheckCircle size={16} /> : <FaSave size={16} />}
-                                        <span>{saveSuccess ? 'Saved Successfully!' : 'Save Changes'}</span>
-                                    </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* 2. Social Links Tab Content */}
+                        {/* 2. ABOUT SECTION */}
+                        {activeTab === 'about' && (
+                            <div className="space-y-5">
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3">About Section Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Main Heading</label>
+                                        <input type="text" value={formData.aboutTitle} onChange={(e) => setFormData({ ...formData, aboutTitle: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Highlighted Subtitle (Teal)</label>
+                                        <input type="text" value={formData.aboutSubtitle} onChange={(e) => setFormData({ ...formData, aboutSubtitle: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">About Bio Paragraph</label>
+                                        <textarea rows="4" value={formData.aboutBio} onChange={(e) => setFormData({ ...formData, aboutBio: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white leading-relaxed" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. CONTACT & MAP */}
+                        {activeTab === 'contact' && (
+                            <div className="space-y-5">
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3">Contact Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                                            <FaWhatsapp className="text-emerald-500" /> WhatsApp Number (Country code without +)
+                                        </label>
+                                        <input type="text" value={formData.whatsappNumber} onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })} placeholder="94711234567" className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                                            <FaEnvelope className="text-teal-500" /> Contact Form Email Address
+                                        </label>
+                                        <input type="email" value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                                            <FaMapMarkerAlt className="text-rose-500" /> Display Location
+                                        </label>
+                                        <input type="text" value={formData.locationText} onChange={(e) => setFormData({ ...formData, locationText: e.target.value })} placeholder="Piliyandala, Sri Lanka" className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                                            <FaMapMarkerAlt className="text-rose-500" /> Google Map Coordinates (Lat,Lng)
+                                        </label>
+                                        <input type="text" value={formData.mapCoordinates} onChange={(e) => setFormData({ ...formData, mapCoordinates: e.target.value })} placeholder="6.769238,79.94509" className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-mono dark:text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. SOCIAL MEDIA LINKS */}
                         {activeTab === 'social' && (
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">Social Media Links</h3>
-                                
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaLinkedin className="text-blue-500" /> LinkedIn Profile URL
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3">Social Media Links</h3>
+                                {[
+                                    { key: 'linkedin', label: 'LinkedIn', icon: FaLinkedin, color: 'text-blue-500' },
+                                    { key: 'github', label: 'GitHub', icon: FaGithub, color: 'text-gray-400' },
+                                    { key: 'youtube', label: 'YouTube', icon: FaYoutube, color: 'text-red-500' },
+                                    { key: 'facebook', label: 'Facebook', icon: FaFacebook, color: 'text-blue-600' },
+                                    { key: 'instagram', label: 'Instagram', icon: FaInstagram, color: 'text-pink-500' },
+                                    { key: 'tiktok', label: 'TikTok', icon: FaTiktok, color: 'text-gray-300' },
+                                    { key: 'twitter', label: 'Twitter / X', icon: FaTwitter, color: 'text-sky-400' },
+                                ].map(soc => (
+                                    <div key={soc.key}>
+                                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                                            <soc.icon className={soc.color} /> {soc.label} URL
                                         </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.linkedin}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, linkedin: e.target.value } })}
-                                            placeholder="https://linkedin.com/in/..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
+                                        <input
+                                            type="url"
+                                            value={formData.socials[soc.key] || ''}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                socials: { ...formData.socials, [soc.key]: e.target.value }
+                                            })}
+                                            placeholder={`https://${soc.key}.com/...`}
+                                            className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-mono dark:text-white"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaGithub className="text-gray-400" /> GitHub Profile URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.github}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, github: e.target.value } })}
-                                            placeholder="https://github.com/..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaYoutube className="text-red-500" /> YouTube Channel URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.youtube}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, youtube: e.target.value } })}
-                                            placeholder="https://youtube.com/@..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaFacebook className="text-blue-600" /> Facebook Profile URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.facebook}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, facebook: e.target.value } })}
-                                            placeholder="https://facebook.com/..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaInstagram className="text-pink-500" /> Instagram Profile URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.instagram}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, instagram: e.target.value } })}
-                                            placeholder="https://instagram.com/..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaTiktok className="text-gray-300" /> TikTok Profile URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.tiktok}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, tiktok: e.target.value } })}
-                                            placeholder="https://tiktok.com/@..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                                            <FaTwitter className="text-sky-400" /> Twitter / X URL
-                                        </label>
-                                        <input 
-                                            type="url" 
-                                            value={profileData.socials.twitter}
-                                            onChange={(e) => setProfileData({ ...profileData, socials: { ...profileData.socials, twitter: e.target.value } })}
-                                            placeholder="https://twitter.com/..." 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 flex justify-end">
-                                    <button 
-                                        type="button"
-                                        onClick={handleSaveProfileAndSocials}
-                                        disabled={isSaving}
-                                        className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50">
-                                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : saveSuccess ? <FaCheckCircle size={16} /> : <FaSave size={16} />}
-                                        <span>{saveSuccess ? 'Saved Successfully!' : 'Save Social Links'}</span>
-                                    </button>
-                                </div>
+                                ))}
                             </div>
                         )}
 
-                        {/* 3. Security Tab Content */}
+                        {/* SAVE BUTTON FOR CONTENT TABS */}
+                        {activeTab !== 'security' && (
+                            <div className="pt-6 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={handleSaveSettings}
+                                    disabled={isSaving}
+                                    className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+                                >
+                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : saveSuccess ? <CheckCircle2 size={16} /> : <FaSave size={16} />}
+                                    <span>{saveSuccess ? 'Saved Live!' : 'Save Changes'}</span>
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 5. SECURITY & LOGIN TAB */}
                         {activeTab === 'security' && (
-                            <form onSubmit={handleChangePassword} className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">Change Password</h3>
-                                
-                                <div className="space-y-5">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
-                                        <input 
-                                            type="password" 
+                            <form onSubmit={handleUpdateCredentials} className="space-y-5">
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3">Admin Login Credentials</h3>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">New Username (Leave blank to keep current)</label>
+                                    <input
+                                        type="text"
+                                        value={securityData.newUsername}
+                                        onChange={(e) => setSecurityData({ ...securityData, newUsername: e.target.value })}
+                                        placeholder="Enter new username"
+                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password (Required for any change)</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPasswords.current ? "text" : "password"}
                                             required
-                                            value={passwords.currentPassword}
-                                            onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                                            placeholder="Enter current password" 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
+                                            value={securityData.currentPassword}
+                                            onChange={(e) => setSecurityData({ ...securityData, currentPassword: e.target.value })}
+                                            placeholder="Enter current password"
+                                            className="w-full pl-4 pr-11 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white"
                                         />
+                                        <button type="button" onClick={() => setShowPasswords(p => ({ ...p, current: !p.current }))} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 cursor-pointer">
+                                            {showPasswords.current ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                        </button>
                                     </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
-                                        <input 
-                                            type="password" 
-                                            required
-                                            value={passwords.newPassword}
-                                            onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                                            placeholder="Enter new password (min. 6 characters)" 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                        />
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">New Password (Min 6 chars)</label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPasswords.new ? "text" : "password"}
+                                                value={securityData.newPassword}
+                                                onChange={(e) => setSecurityData({ ...securityData, newPassword: e.target.value })}
+                                                placeholder="Enter new password"
+                                                className="w-full pl-4 pr-11 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white"
+                                            />
+                                            <button type="button" onClick={() => setShowPasswords(p => ({ ...p, new: !p.new }))} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 cursor-pointer">
+                                                {showPasswords.new ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                            </button>
+                                        </div>
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
-                                        <input 
-                                            type="password" 
-                                            required
-                                            value={passwords.confirmPassword}
-                                            onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                                            placeholder="Confirm new password" 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                        />
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPasswords.confirm ? "text" : "password"}
+                                                value={securityData.confirmPassword}
+                                                onChange={(e) => setSecurityData({ ...securityData, confirmPassword: e.target.value })}
+                                                placeholder="Confirm new password"
+                                                className="w-full pl-4 pr-11 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm dark:text-white"
+                                            />
+                                            <button type="button" onClick={() => setShowPasswords(p => ({ ...p, confirm: !p.confirm }))} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 cursor-pointer">
+                                                {showPasswords.confirm ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="pt-4 flex justify-end">
-                                    <button 
+                                    <button
                                         type="submit"
                                         disabled={isSaving}
-                                        className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50">
+                                        className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+                                    >
                                         {isSaving ? <Loader2 size={16} className="animate-spin" /> : <FaSave size={16} />}
-                                        <span>Update Password</span>
+                                        <span>Update Credentials</span>
                                     </button>
                                 </div>
                             </form>
@@ -455,7 +479,6 @@ const Settings = () => {
 
                     </div>
                 </div>
-
             </div>
         </div>
     );
