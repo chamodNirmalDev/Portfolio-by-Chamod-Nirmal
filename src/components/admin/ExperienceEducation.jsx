@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
     FaPlus, FaEdit, FaTrash, FaTimes, FaGraduationCap, 
-    FaAward, FaCalendarAlt, FaBuilding, FaSyncAlt, FaExternalLinkAlt, FaLanguage 
+    FaAward, FaCalendarAlt, FaSyncAlt, FaImage, FaExternalLinkAlt, FaUpload 
 } from 'react-icons/fa';
 import { Loader2 } from 'lucide-react';
 
@@ -16,7 +16,8 @@ const initialForm = {
     category: 'Professional',
     status: 'Completed',
     credentialId: '',
-    credentialLabel: 'Verify',
+    credentialType: 'image', // 'image' හෝ 'link'
+    credentialLabel: 'View Certificate',
     credentialUrl: ''
 };
 
@@ -27,8 +28,9 @@ const ExperienceEducation = () => {
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState(initialForm);
     const [isSaving, setIsSaving] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+    const fileInputRef = useRef(null);
 
-    // 1. Fetch All from /api/certificates
     const fetchCertificates = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -48,11 +50,35 @@ const ExperienceEducation = () => {
         fetchCertificates();
     }, [fetchCertificates]);
 
-    // Open Add / Edit Modal
+    // Image File Chooser හැසිරවීම (Base64 conversion)
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Vercel serverless payload limit එක 4.5MB නිසා 1.5MB වලට සීමා කිරීම වඩාත් ආරක්ෂිතයි
+        if (file.size > 1.5 * 1024 * 1024) {
+            alert('File size exceeds 1.5MB. Please choose a smaller image or use an image link.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result;
+            setImagePreview(base64String);
+            setFormData(prev => ({
+                ...prev,
+                credentialUrl: base64String
+            }));
+        };
+        reader.readAsDataURL(file);
+    };
+
     const openModal = (cert = null) => {
         if (cert) {
             setEditingId(cert._id);
             const firstCred = cert.credentials?.[0] || {};
+            const credType = firstCred.type || (firstCred.url ? 'link' : 'image');
+            const credUrl = firstCred.url || '';
             setFormData({
                 title: cert.title || '',
                 issuer: cert.issuer || '',
@@ -60,12 +86,15 @@ const ExperienceEducation = () => {
                 category: cert.category || 'Professional',
                 status: cert.status || 'Completed',
                 credentialId: cert.credentialId || '',
-                credentialLabel: firstCred.label || 'Verify',
-                credentialUrl: firstCred.url || ''
+                credentialType: credType,
+                credentialLabel: firstCred.label || (credType === 'image' ? 'View Certificate' : 'Verify'),
+                credentialUrl: credUrl
             });
+            setImagePreview(credType === 'image' && credUrl ? credUrl : null);
         } else {
             setEditingId(null);
             setFormData(initialForm);
+            setImagePreview(null);
         }
         setIsModalOpen(true);
     };
@@ -74,9 +103,9 @@ const ExperienceEducation = () => {
         setIsModalOpen(false);
         setEditingId(null);
         setFormData(initialForm);
+        setImagePreview(null);
     };
 
-    // Save or Update
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('adminToken');
@@ -91,10 +120,10 @@ const ExperienceEducation = () => {
             category: formData.category,
             status: formData.status,
             credentialId: formData.credentialId.trim(),
-            credentials: formData.credentialUrl ? [{
-                label: formData.credentialLabel.trim() || 'Verify',
+            credentials: formData.credentialUrl.trim() ? [{
+                label: formData.credentialLabel.trim() || (formData.credentialType === 'image' ? 'View Certificate' : 'Verify'),
                 url: formData.credentialUrl.trim(),
-                type: 'link'
+                type: formData.credentialType
             }] : []
         };
 
@@ -127,7 +156,6 @@ const ExperienceEducation = () => {
         }
     };
 
-    // Delete
     const handleDelete = async (id, title) => {
         if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
         const token = localStorage.getItem('adminToken');
@@ -153,13 +181,11 @@ const ExperienceEducation = () => {
 
     return (
         <div className="flex-1 p-6 overflow-y-auto relative">
-            
-            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Certifications & Education Management</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Add, edit, or delete degrees and certifications shown on your live portfolio.
+                        Manage degrees, online badges, and certificates with popup image previews.
                     </p>
                 </div>
                 
@@ -188,11 +214,10 @@ const ExperienceEducation = () => {
                 </div>
             ) : certificates.length === 0 ? (
                 <div className="text-center py-20 text-gray-500 dark:text-gray-400">
-                    No certificates or education records found in MongoDB. Click "Add New Record" to add your first entry.
+                    No certificates found in MongoDB. Click "Add New Record" to add your first entry.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
-                    
                     {/* Education Column */}
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2 border-b border-teal-500/20 pb-3">
@@ -225,35 +250,44 @@ const ExperienceEducation = () => {
                     {/* Professional & Language Certifications Column */}
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2 border-b border-teal-500/20 pb-3">
-                            <FaAward className="text-teal-500" /> Professional Certifications
+                            <FaAward className="text-teal-500" /> Professional & Language Certifications
                         </h3>
                         {professionalList.length === 0 ? (
                             <p className="text-sm text-gray-400">No certifications added yet.</p>
                         ) : (
                             <div className="space-y-4">
-                                {professionalList.map((cert) => (
-                                    <div key={cert._id} className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h4 className="text-base font-bold text-gray-800 dark:text-white leading-snug">{cert.title}</h4>
-                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <button onClick={() => openModal(cert)} className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer"><FaEdit size={14} /></button>
-                                                <button onClick={() => handleDelete(cert._id, cert.title)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"><FaTrash size={14} /></button>
+                                {professionalList.map((cert) => {
+                                    const cred = cert.credentials?.[0];
+                                    return (
+                                        <div key={cert._id} className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="text-base font-bold text-gray-800 dark:text-white leading-snug">{cert.title}</h4>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    <button onClick={() => openModal(cert)} className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer"><FaEdit size={14} /></button>
+                                                    <button onClick={() => handleDelete(cert._id, cert.title)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"><FaTrash size={14} /></button>
+                                                </div>
+                                            </div>
+                                            <div className="text-sm text-teal-600 dark:text-teal-400 font-medium mb-2">{cert.issuer}</div>
+                                            
+                                            <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2 mt-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                                <span className="flex items-center gap-1.5"><FaCalendarAlt /> {cert.date}</span>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    {cred && (
+                                                        <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-teal-600 dark:text-emerald-400 font-mono">
+                                                            {cred.type === 'image' ? <FaImage size={10} /> : <FaExternalLinkAlt size={9} />}
+                                                            {cred.label}
+                                                        </span>
+                                                    )}
+                                                    <span className="px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-500 border border-teal-500/20 font-semibold">{cert.category}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="text-sm text-teal-600 dark:text-teal-400 font-medium mb-2">{cert.issuer}</div>
-                                        <div className="flex items-center justify-between text-xs text-gray-500">
-                                            <span className="flex items-center gap-1.5"><FaCalendarAlt /> {cert.date}</span>
-                                            <div className="flex items-center gap-2">
-                                                {cert.credentialId && <span className="font-mono text-[11px] text-gray-400">ID: {cert.credentialId}</span>}
-                                                <span className="px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-500 border border-teal-500/20 font-semibold">{cert.category}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
-
                 </div>
             )}
 
@@ -278,19 +312,19 @@ const ExperienceEducation = () => {
                                     required
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    placeholder="e.g., BSc (Hons) Software Engineering or Ethical Hacker" 
+                                    placeholder="e.g., Advanced Diploma in English or Ethical Hacker" 
                                     className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issuer / University</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issuer / Institute</label>
                                 <input 
                                     type="text" 
                                     required
                                     value={formData.issuer}
                                     onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
-                                    placeholder="e.g., Birmingham City University or Cisco" 
+                                    placeholder="e.g., British Trinity Academy or Cisco" 
                                     className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                 />
                             </div>
@@ -318,43 +352,158 @@ const ExperienceEducation = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date / Period</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
                                     <input 
                                         type="text" 
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                        placeholder="e.g., Aug 2026" 
+                                        placeholder="e.g., May 2024" 
                                         className="w-full px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Credential ID (Optional)</label>
-                                    <input 
-                                        type="text" 
-                                        value={formData.credentialId}
-                                        onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
-                                        placeholder="e.g., xfBCGXDdSD" 
-                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                    />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Credential ID (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.credentialId}
+                                    onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
+                                    placeholder="e.g., DMDCN14052024" 
+                                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
+                                />
+                            </div>
+
+                            {/* Credential Action Type Selection */}
+                            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 space-y-4">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Certificate Action / Verification Type
+                                </label>
+                                
+                                <div className="flex flex-wrap gap-4 text-xs sm:text-sm">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input 
+                                            type="radio" 
+                                            name="credentialType" 
+                                            value="image" 
+                                            checked={formData.credentialType === 'image'}
+                                            onChange={() => {
+                                                setFormData({ ...formData, credentialType: 'image', credentialLabel: 'View Certificate' });
+                                            }}
+                                            className="text-teal-500"
+                                        />
+                                        <span>Upload / Image Preview (View Certificate)</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input 
+                                            type="radio" 
+                                            name="credentialType" 
+                                            value="link" 
+                                            checked={formData.credentialType === 'link'}
+                                            onChange={() => {
+                                                setFormData({ ...formData, credentialType: 'link', credentialLabel: 'Verify' });
+                                                setImagePreview(null);
+                                            }}
+                                            className="text-teal-500"
+                                        />
+                                        <span>External Verification URL (Credly / Portal)</span>
+                                    </label>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Verification / Certificate URL</label>
-                                    <input 
-                                        type="text" 
-                                        value={formData.credentialUrl}
-                                        onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })}
-                                        placeholder="https://credly.com/..." 
-                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
-                                    />
-                                </div>
+
+                                {formData.credentialType === 'image' ? (
+                                    <div className="space-y-3 pt-2">
+                                        {/* File Chooser Button */}
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                ref={fileInputRef} 
+                                                accept="image/*" 
+                                                onChange={handleFileChange} 
+                                                className="hidden" 
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 border-2 border-dashed border-teal-500/40 hover:border-teal-500 rounded-xl bg-teal-50/50 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 font-medium text-sm transition-colors cursor-pointer"
+                                            >
+                                                <FaUpload size={14} />
+                                                <span>Choose Image from Computer (Max 1.5MB)</span>
+                                            </button>
+                                        </div>
+
+                                        {/* Preview Thumbnail if selected */}
+                                        {imagePreview && (
+                                            <div className="flex items-center gap-3 p-2 bg-white dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700">
+                                                <img 
+                                                    src={imagePreview} 
+                                                    alt="Preview" 
+                                                    className="w-14 h-14 object-cover rounded-lg border border-teal-500/30"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">Image Selected</p>
+                                                    <p className="text-[11px] text-emerald-500 font-semibold">Ready to save</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setImagePreview(null);
+                                                        setFormData(prev => ({ ...prev, credentialUrl: '' }));
+                                                    }}
+                                                    className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md"
+                                                >
+                                                    <FaTimes size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Or enter Direct URL */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                                Or Paste External Image URL:
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.credentialUrl.startsWith('data:') ? '' : formData.credentialUrl}
+                                                onChange={(e) => {
+                                                    const url = e.target.value;
+                                                    setFormData({ ...formData, credentialUrl: url });
+                                                    setImagePreview(url || null);
+                                                }}
+                                                placeholder="https://.../certificate.jpg"
+                                                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-800 dark:text-white font-mono"
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Button Label</label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.credentialLabel}
+                                                onChange={(e) => setFormData({ ...formData, credentialLabel: e.target.value })}
+                                                placeholder="Verify"
+                                                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-800 dark:text-white"
+                                            />
+                                        </div>
+                                        <div className="sm:col-span-2">
+                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Verification Link URL</label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.credentialUrl}
+                                                onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })}
+                                                placeholder="https://www.credly.com/..."
+                                                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-800 dark:text-white font-mono"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-                                <button type="button" onClick={closeModal} className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer">Cancel</button>
-                                <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50">
+                                <button type="button" onClick={closeModal} className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer text-sm">Cancel</button>
+                                <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 text-sm">
                                     {isSaving ? 'Saving...' : editingId ? 'Update Record' : 'Save Record'}
                                 </button>
                             </div>

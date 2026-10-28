@@ -137,9 +137,9 @@ const fallbackCertificates = [
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 50, filter: "blur(10px)" },
-    visible: { 
-        opacity: 1, 
-        y: 0, 
+    visible: {
+        opacity: 1,
+        y: 0,
         filter: "blur(0px)",
         transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.25 }
     }
@@ -147,47 +147,47 @@ const sectionVariants = {
 
 const leftColVariants = {
     hidden: { opacity: 0, x: -60, scale: 0.94, filter: "blur(8px)" },
-    visible: { 
-        opacity: 1, 
-        x: 0, 
-        scale: 1, 
+    visible: {
+        opacity: 1,
+        x: 0,
+        scale: 1,
         filter: "blur(0px)",
-        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] } 
+        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }
     }
 };
 
 const rightColVariants = {
     hidden: { opacity: 0, x: 60, filter: "blur(8px)" },
-    visible: { 
-        opacity: 1, 
-        x: 0, 
+    visible: {
+        opacity: 1,
+        x: 0,
         filter: "blur(0px)",
-        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.15 } 
+        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.15 }
     }
 };
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-        opacity: 1, 
-        transition: { staggerChildren: 0.15, delayChildren: 0.05 } 
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.15, delayChildren: 0.05 }
     },
-    exit: { 
-        opacity: 0, 
-        y: -15, 
-        filter: "blur(6px)", 
-        transition: { duration: 0.4, ease: "easeInOut" } 
+    exit: {
+        opacity: 0,
+        y: -15,
+        filter: "blur(6px)",
+        transition: { duration: 0.4, ease: "easeInOut" }
     },
 };
 
 const itemVariants = {
     hidden: { opacity: 0, y: 25, scale: 0.97, filter: "blur(4px)" },
-    visible: { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
         filter: "blur(0px)",
-        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } 
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
     },
 };
 
@@ -261,19 +261,19 @@ const Certificate = () => {
     return (
         <section id="certificates" className="min-h-screen flex items-center relative overflow-hidden pt-20 pb-32">
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }} 
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} 
+                <motion.div
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute top-1/4 -left-20 w-80 h-80 bg-teal-500/15 rounded-full blur-[110px]"
                 />
-                <motion.div 
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }} 
-                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
+                <motion.div
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
                     className="absolute bottom-10 -right-20 w-96 h-96 bg-emerald-500/15 rounded-full blur-[120px]"
                 />
             </div>
 
-            <motion.div 
+            <motion.div
                 variants={sectionVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -281,15 +281,15 @@ const Certificate = () => {
                 className="container mx-auto px-4 sm:px-8 lg:px-14 relative z-10"
             >
                 <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 lg:gap-20 max-w-6xl mx-auto">
-                    
+
                     {/* Left: Image + Stats */}
                     <motion.div
                         variants={leftColVariants}
                         className="lg:w-5/12 w-full flex flex-col items-center lg:sticky lg:top-28"
                     >
-                        <motion.div 
-                            animate={{ y: [0, -8, 0] }} 
-                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} 
+                        <motion.div
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
                             className="relative group"
                         >
                             <div className="absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700 rounded-3xl filter blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
@@ -364,7 +364,7 @@ const Certificate = () => {
                         </div>
 
                         {/* Scrollable Certificates List */}
-                        <div 
+                        <div
                             ref={listRef}
                             className="w-full max-h-[330px] overflow-y-auto pr-2 cert-scroll"
                         >
@@ -474,74 +474,106 @@ const Certificate = () => {
                 </div>
             </motion.div>
 
-            {/* Certificate Preview Popup */}
+            {/* --- macOS / iMac Style Certificate Preview Popup --- */}
             <AnimatePresence>
                 {preview && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.35 }}
+                        transition={{ duration: 0.3 }}
                         onClick={() => setPreview(null)}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
                         role="dialog"
                         aria-modal="true"
                         aria-label={preview.title}
                     >
                         <motion.div
-                            initial={{ scale: 0.92, opacity: 0, y: 30, filter: "blur(6px)" }}
-                            animate={{ scale: 1, opacity: 1, y: 0, filter: "blur(0px)" }}
-                            exit={{ scale: 0.92, opacity: 0, y: 30, filter: "blur(6px)" }}
-                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            initial={{ scale: 0.94, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.94, opacity: 0, y: 20 }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative max-w-3xl w-full flex flex-col items-center bg-zinc-900/90 border border-white/10 p-4 sm:p-6 rounded-2xl shadow-2xl"
+                            className="relative max-w-3xl w-full flex flex-col bg-[#121417]/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                         >
-                            <button
-                                type="button"
-                                onClick={() => setPreview(null)}
-                                aria-label="Close"
-                                className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 z-10 p-2 rounded-full bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 shadow-lg hover:bg-red-500 hover:text-white dark:hover:bg-red-500 transition-colors cursor-pointer"
-                            >
-                                <X size={20} />
-                            </button>
+                            {/* --- macOS Window Title Bar --- */}
+                            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-[#181b20]/90 select-none">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    {/* Traffic Light Window Controls */}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPreview(null)}
+                                            title="Close"
+                                            className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-90 transition-all cursor-pointer"
+                                        />
+                                        <span className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] opacity-80" />
+                                        <span className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] opacity-80" />
+                                    </div>
 
-                            <a 
-                                href={preview.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                title="Click to open full size in new tab"
-                                className="w-full flex justify-center cursor-zoom-in overflow-hidden rounded-xl border border-white/10 bg-black/40"
-                            >
-                                <img
-                                    src={preview.url}
-                                    alt={preview.title}
-                                    className="max-h-[70vh] w-auto max-w-full object-contain hover:scale-[1.02] transition-transform duration-500"
-                                />
-                            </a>
+                                    {/* Window Title & Subtitle */}
+                                    <div className="flex flex-col ml-1 truncate">
+                                        <h4 className="text-sm font-semibold text-gray-200 truncate leading-snug">
+                                            {preview.title}
+                                        </h4>
+                                        <span className="text-[11px] text-gray-400 font-mono truncate">
+                                            Certificate Preview
+                                        </span>
+                                    </div>
+                                </div>
 
-                            <div className="w-full mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 px-1">
-                                <p className="text-sm sm:text-base font-medium text-gray-200 text-center sm:text-left">
+                                {/* Window Right Close Action */}
+                                <button
+                                    type="button"
+                                    onClick={() => setPreview(null)}
+                                    aria-label="Close"
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0 ml-2"
+                                >
+                                    <X size={17} />
+                                </button>
+                            </div>
+
+                            {/* --- Certificate Image Area --- */}
+                            <div className="p-4 sm:p-6 flex flex-col items-center bg-black/40">
+                                <a
+                                    href={preview.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Click to view full image in a new tab"
+                                    className="w-full flex justify-center overflow-hidden rounded-xl border border-white/5 bg-[#0a0c0e] shadow-inner cursor-zoom-in"
+                                >
+                                    <img
+                                        src={preview.url}
+                                        alt={preview.title}
+                                        className="max-h-[65vh] w-auto max-w-full object-contain hover:scale-[1.01] transition-transform duration-300"
+                                    />
+                                </a>
+                            </div>
+
+                            {/* --- macOS Window Bottom Bar / Actions --- */}
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 border-t border-white/10 bg-[#181b20]/90">
+                                <p className="text-xs text-gray-400 truncate max-w-md text-center sm:text-left">
                                     {preview.title}
                                 </p>
 
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex items-center gap-2.5 shrink-0">
                                     <a
                                         href={preview.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-gray-200 border border-zinc-700 transition-colors"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 transition-colors cursor-pointer"
                                     >
                                         <span>Full Size</span>
-                                        <ExternalLink size={13} />
+                                        <ExternalLink size={12} />
                                     </a>
 
                                     <a
                                         href={preview.url}
                                         download={`${preview.title.replace(/\s+/g, '_')}_Certificate`}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white shadow-sm shadow-teal-500/20 transition-colors"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white shadow-sm shadow-teal-500/20 transition-colors cursor-pointer"
                                     >
                                         <span>Download</span>
-                                        <Download size={13} />
+                                        <Download size={12} />
                                     </a>
                                 </div>
                             </div>
