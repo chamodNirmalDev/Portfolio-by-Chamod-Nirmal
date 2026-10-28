@@ -3,6 +3,7 @@ import { Send, Mail, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const Contact = () => {
     const [formStatus, setFormStatus] = useState('idle');
 
@@ -20,37 +21,37 @@ const Contact = () => {
     }
 
     const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        setFormStatus('sending');
+    e.preventDefault();
+    setFormStatus('sending');
 
-        try {
-            const response = await fetch('https://portfolio-backend-orcin-zeta.vercel.app/api/send-email', { 
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+    try {
+        const response = await fetch(`${API_URL}/api/send-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setFormStatus('sent');
+            setFormData({
+                user_name: '',
+                user_email: '',
+                message: ''
             });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setFormStatus('sent');
-                setFormData({
-                    user_name: '',
-                    user_email: '',
-                    message: ''
-                });
-                setTimeout(() => setFormStatus('idle'), 3000);
-            } else {
-                throw new Error(data.error);
-            }
-        } catch (error) {
-            console.error("Email send error:", error);
-            setFormStatus('idle');
-            alert("Oops! Something went wrong. Please check if the backend server is running.");
+            setTimeout(() => setFormStatus('idle'), 3000);
+        } else {
+            throw new Error(data.error || 'Failed to send message');
         }
-    };
+    } catch (error) {
+        console.error("Email send error:", error);
+        setFormStatus('idle');
+        alert(error.message || "Oops! Something went wrong. Please check if the backend server is running.");
+    }
+};
 
     return (
         <section id='contacts' className='py-24 relative overflow-hidden min-h-screen flex items-center'>
@@ -142,7 +143,7 @@ const Contact = () => {
                                 allowFullScreen=""
                                 loading="lazy"
                                 referrerPolicy="no-referrer-when-downgrade"
-                                className="w-full h-full filter invert-[90%] hue-rotate-180 contrast-80 group-hover:invert-0 group-hover:hue-rotate-0 group-hover:contrast-100 transition-all duration-500"
+                                className="w-full h-full filter invert-90% hue-rotate-180 contrast-80 group-hover:invert-0 group-hover:hue-rotate-0 group-hover:contrast-100 transition-all duration-500"
                             ></iframe>
                         </div>
 
