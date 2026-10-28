@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import defaultHero from '../assets/hero.png'
-import defaultCV from '../assets/cv.pdf'
-import { FaFacebook, FaGithub, FaInstagram, FaYoutube, FaReact, FaJava, FaDatabase, FaPython, FaHtml5, FaPhp, FaCss3 } from 'react-icons/fa'
-import { DownloadIcon, Mail, Check, ArrowRight } from 'lucide-react'
-import { motion, animate, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect } from 'react';
+import { FaFacebook, FaGithub, FaInstagram, FaYoutube, FaReact, FaJava, FaDatabase, FaPython, FaHtml5, FaPhp, FaCss3 } from 'react-icons/fa';
+import { DownloadIcon, Mail, Check, ArrowRight } from 'lucide-react';
+import { motion, animate, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
@@ -11,7 +9,8 @@ const AnimatedCounter = ({ to }) => {
     const [currentValue, setCurrentValue] = useState(0);
 
     useEffect(() => {
-        const controls = animate(0, to, {
+        if (!to && to !== 0) return;
+        const controls = animate(0, Number(to) || 0, {
             duration: 2.5,
             ease: "easeOut",
             onUpdate: (value) => setCurrentValue(Math.round(value))
@@ -26,14 +25,14 @@ const AnimatedDownloadButton = ({ cvUrl }) => {
     const [downloadState, setDownloadState] = useState('idle');
 
     const handleDownload = () => {
-        if (downloadState !== 'idle') return;
+        if (downloadState !== 'idle' || !cvUrl) return;
         setDownloadState('downloading');
 
         fetch(`${API_URL}/api/track/cv`, { method: 'POST' }).catch(() => {});
 
         const link = document.createElement('a');
-        link.href = cvUrl || defaultCV;
-        link.download = "Chamod_Nirmal_CV.pdf";
+        link.href = cvUrl;
+        link.download = "CV.pdf";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -43,6 +42,8 @@ const AnimatedDownloadButton = ({ cvUrl }) => {
             setTimeout(() => setDownloadState('idle'), 2000);
         }, 2000);
     };
+
+    if (!cvUrl) return null;
 
     return (
         <button
@@ -76,45 +77,40 @@ const AnimatedDownloadButton = ({ cvUrl }) => {
 };
 
 const Hero = () => {
-    const [profile, setProfile] = useState({
-        fullName: 'Chamod Nirmal',
-        jobTitle: 'Full Stack Developer',
-        heroBio: 'Welcome to my portfolio! I am DMD Chamod Nirmal, a multi-disciplinary Full Stack Developer and Tech Enthusiast. From building robust web and desktop applications to developing hardware-integrated IoT systems with ESP32, Arduino, and other microcontrollers, and crafting high-quality video content, I deliver complete end-to-end digital solutions.',
-        avatarUrl: '',
-        cvUrl: '',
-        yearsExperience: 3,
-        projectsDone: 30,
-        happyClients: 10
-    });
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
         fetch(`${API_URL}/api/profile`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
-                    setProfile(prev => ({ ...prev, ...data.data }));
+                    setProfile(data.data);
                 }
             })
             .catch(err => console.error(err));
     }, []);
 
-    const animatedTitle = `< ${profile.jobTitle || 'Full Stack Developer'} >`;
-    const displayName = (profile.fullName || 'Chamod').split(' ')[0];
+    if (!profile) return null;
+
+    const animatedTitle = profile.jobTitle ? `< ${profile.jobTitle} >` : '';
+    const displayName = profile.fullName ? profile.fullName.split(' ')[0] : '';
 
     return (
         <section id='home' className='min-h-screen flex items-center pb-24 sm:pb-24 relative overflow-hidden'>
             <div className='container mx-auto px-4 sm:px-8 lg:px-14 py-12 lg:mt-14 relative z-10'>
                 <div className='flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16'>
 
-                    {/* Left: Image & Orbit */}
+                    {/* වම් පස පින්තූරය සහ Orbit */}
                     <div className='lg:w-2/5 w-full flex justify-center relative' data-aos='fade-right'>
                         <div className='relative w-56 h-56 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center mx-auto'>
                             <div className='relative group z-10 w-full h-full'>
                                 <div className='absolute inset-0 bg-linear-to-r from-teal-400 to-emerald-500 rounded-full filter blur-2xl opacity-0 group-hover:opacity-60 transition-all duration-500' />
-                                <div className='relative w-full h-full rounded-full border-4 border-white/5 shadow-2xl z-10'>
-                                    <img src={profile.avatarUrl || defaultHero} alt='profile' className='w-full h-full object-cover rounded-full' />
-                                    <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-110'></div>
-                                    <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-120'></div>
+                                <div className='relative w-full h-full rounded-full border-4 border-white/5 shadow-2xl z-10 overflow-hidden bg-gray-900'>
+                                    {profile.avatarUrl && (
+                                        <img src={profile.avatarUrl} alt='profile' className='w-full h-full object-cover rounded-full' />
+                                    )}
+                                    <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-110 pointer-events-none'></div>
+                                    <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-120 pointer-events-none'></div>
                                 </div>
                             </div>
 
@@ -135,31 +131,38 @@ const Hero = () => {
                         </div>
                     </div>
 
-                    {/* Right: Content */}
+                    {/* දකුණු පස විස්තර */}
                     <div className='lg:w-3/5 w-full flex flex-col items-center lg:items-start text-center lg:text-left' data-aos='fade-left'>
                         <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 mb-5'>
                             <span className='w-2 h-2 rounded-full bg-red-500 animate-pulse'></span>
                             <span className='text-sm font-medium dark:text-teal-300 text-teal-800'>Available for work</span>
                         </div>
 
-                        <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 dark:text-white text-gray-800'>
-                            Hello, I'm <span className='text-teal-700 dark:text-teal-400'>{displayName}</span>
-                        </h1>
+                        {profile.fullName && (
+                            <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 dark:text-white text-gray-800'>
+                                Hello, I'm <span className='text-teal-700 dark:text-teal-400'>{displayName}</span>
+                            </h1>
+                        )}
 
-                        <h2 className='text-2xl sm:text-3xl font-mono mb-4 dark:text-emerald-500 text-emerald-700 flex items-center justify-center lg:justify-start'>
-                            {animatedTitle}
-                        </h2>
+                        {animatedTitle && (
+                            <h2 className='text-2xl sm:text-3xl font-mono mb-4 dark:text-emerald-500 text-emerald-700 flex items-center justify-center lg:justify-start'>
+                                {animatedTitle}
+                            </h2>
+                        )}
 
-                        <p className='mb-6 leading-relaxed max-w-md lg:max-w-lg dark:text-emerald-100/80 text-emerald-950 text-sm sm:text-base'>
-                            {profile.heroBio}
-                        </p>
+                        {profile.heroBio && (
+                            <p className='mb-6 leading-relaxed max-w-md lg:max-w-lg dark:text-emerald-100/80 text-emerald-950 text-sm sm:text-base'>
+                                {profile.heroBio}
+                            </p>
+                        )}
 
+                        {/* Stats Counter */}
                         <div className='flex gap-10 mb-7'>
                             {[
                                 { number: profile.yearsExperience, label: "Years Experience" },
                                 { number: profile.projectsDone, label: "Projects Done" },
                                 { number: profile.happyClients, label: "Happy Clients" }
-                            ].map((stat, idx) => (
+                            ].filter(stat => stat.number !== undefined && stat.number !== null).map((stat, idx) => (
                                 <div key={idx} className='text-center'>
                                     <div className='text-3xl font-bold dark:text-emerald-100 text-teal-900'>
                                         <AnimatedCounter to={stat.number} />+
@@ -169,6 +172,7 @@ const Hero = () => {
                             ))}
                         </div>
 
+                        {/* Buttons Section */}
                         <div className='flex flex-col sm:flex-row gap-5 w-full sm:w-auto items-center mt-4'>
                             <AnimatedDownloadButton cvUrl={profile.cvUrl} />
                             <a href="#contacts" onClick={(e) => { e.preventDefault(); document.getElementById('contacts')?.scrollIntoView({ behavior: 'smooth' }); }} className='w-full sm:w-auto'>
