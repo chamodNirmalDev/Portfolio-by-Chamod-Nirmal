@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import hero from '../assets/hero.png'
+import defaultHero from '../assets/hero.png'
 import { FaFacebook, FaGithub, FaInstagram, FaYoutube, FaReact, FaJava, FaDatabase, FaPython, FaHtml5, FaPhp, FaCss3 } from 'react-icons/fa'
 import { FaLinkedin } from 'react-icons/fa6'
 import CV from '../assets/cv.pdf'
 import { DownloadIcon, Mail, Check, ArrowRight } from 'lucide-react'
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion'
+import { motion, animate, AnimatePresence } from 'framer-motion'
+
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 // --- Number Counting Component ---
 const AnimatedCounter = ({ to }) => {
@@ -32,15 +34,12 @@ const AnimatedDownloadButton = ({ cvFile }) => {
     const handleDownload = () => {
         if (downloadState !== 'idle') return;
 
-        // Downloading තත්ත්වයට පත් කිරීම
         setDownloadState('downloading');
 
-        // --- Real-time CV Download Tracking to Backend / MongoDB ---
-        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        // Real-time CV Download Tracking to Backend / MongoDB
         fetch(`${API_URL}/api/track/cv`, { method: 'POST' })
             .catch(err => console.error('CV download tracking error:', err));
 
-        // ඇත්තටම CV එක Download වීමට ලබා දෙන කේතය
         const link = document.createElement('a');
         link.href = cvFile;
         link.download = "Chamod_Nirmal_CV.pdf";
@@ -48,11 +47,8 @@ const AnimatedDownloadButton = ({ cvFile }) => {
         link.click();
         document.body.removeChild(link);
 
-        // තත්පර 2කින් Progress එක පිරී Completed තත්ත්වයට පත් කිරීම
         setTimeout(() => {
             setDownloadState('completed');
-
-            // තත්පර 2කට පසු නැවතත් මුල් තත්ත්වයට පත් කිරීම
             setTimeout(() => {
                 setDownloadState('idle');
             }, 2000);
@@ -66,8 +62,6 @@ const AnimatedDownloadButton = ({ cvFile }) => {
             className='relative overflow-hidden w-full sm:w-48 h-12 inline-flex items-center justify-center rounded-full text-white font-semibold bg-linear-to-r from-teal-500 to-emerald-600 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] transition-all duration-300 transform hover:scale-105 whitespace-nowrap disabled:cursor-wait disabled:hover:scale-100 disabled:hover:shadow-none cursor-pointer'
         >
             <AnimatePresence mode="wait">
-
-                {/* 1. Idle State */}
                 {downloadState === 'idle' && (
                     <motion.div
                         key="idle"
@@ -76,14 +70,12 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         exit={{ opacity: 0, y: -10 }}
                         className="flex items-center gap-2 relative z-10 w-full justify-center"
                     >
-                        {/* දිලිසෙන කිරණය (Shine Effect) */}
                         <motion.div animate={{ x: ['-200%', '300%'] }} transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }} className="absolute inset-0 z-0 w-1/3 bg-linear-to-r from-transparent via-white/40 to-transparent skew-x-12" />
                         <DownloadIcon size={18} className="relative z-10" />
                         <span className="relative z-10">Download CV</span>
                     </motion.div>
                 )}
 
-                {/* 2. Downloading State */}
                 {downloadState === 'downloading' && (
                     <motion.div
                         key="downloading"
@@ -93,8 +85,6 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         className="flex items-center justify-center w-full h-full relative"
                     >
                         <span className="relative z-10 text-white font-bold tracking-widest text-xs sm:text-sm uppercase drop-shadow-md">Downloading...</span>
-
-                        {/* Progress Bar (පිරීගෙන යන කොටස) */}
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "100%" }}
@@ -104,7 +94,6 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                     </motion.div>
                 )}
 
-                {/* 3. Completed State */}
                 {downloadState === 'completed' && (
                     <motion.div
                         key="completed"
@@ -114,8 +103,6 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         className="flex items-center gap-2 bg-emerald-500 w-full h-full justify-center absolute inset-0 z-20"
                     >
                         <span className="font-bold">Ready!</span>
-
-                        {/* ඊතලය */}
                         <motion.div
                             initial={{ x: -30, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
@@ -123,8 +110,6 @@ const AnimatedDownloadButton = ({ cvFile }) => {
                         >
                             <ArrowRight size={20} />
                         </motion.div>
-
-                        {/* හරි ලකුණ */}
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -140,14 +125,38 @@ const AnimatedDownloadButton = ({ cvFile }) => {
 };
 
 const Hero = () => {
+    // Live Profile State
+    const [profile, setProfile] = useState({
+        fullName: 'Chamod Nirmal',
+        jobTitle: 'Full Stack Developer',
+        bio: 'Welcome to my portfolio! I am DMD Chamod Nirmal, a multi-disciplinary Full Stack Developer and Tech Enthusiast. From building robust web and desktop applications to developing hardware-integrated IoT systems with ESP32, Arduino, and other microcontrollers, and crafting high-quality video content, I deliver complete end-to-end digital solutions.',
+        avatarUrl: ''
+    });
 
-    const text = "< Full Stack Developer >";
+    // Fetch dynamic profile info from MongoDB
+    useEffect(() => {
+        fetch(`${API_URL}/api/profile`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setProfile({
+                        fullName: data.data.fullName || 'Chamod Nirmal',
+                        jobTitle: data.data.jobTitle || 'Full Stack Developer',
+                        bio: data.data.bio || 'Welcome to my portfolio! I am DMD Chamod Nirmal, a multi-disciplinary Full Stack Developer and Tech Enthusiast.',
+                        avatarUrl: data.data.avatarUrl || ''
+                    });
+                }
+            })
+            .catch(err => console.error('Error fetching profile in Hero:', err));
+    }, []);
+
+    const animatedTitle = `< ${profile.jobTitle} >`;
 
     const containerVariants = {
         hidden: { opacity: 1 },
         visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.2 }
+            transition: { staggerChildren: 0.12 }
         }
     };
 
@@ -155,6 +164,9 @@ const Hero = () => {
         hidden: { opacity: 0, display: 'none' },
         visible: { opacity: 1, display: 'inline-block' }
     };
+
+    // First name for "Hello, I'm Chamod"
+    const displayName = profile.fullName.split(' ')[0] || 'Chamod';
 
     return (
         <section id='home' className='min-h-screen flex items-center pb-24 sm:pb-24 relative overflow-hidden'>
@@ -167,7 +179,11 @@ const Hero = () => {
                             <div className='relative group z-10 w-full h-full'>
                                 <div className='absolute inset-0 bg-linear-to-r from-teal-400 to-emerald-500 rounded-full filter blur-2xl opacity-0 group-hover:opacity-60 group-hover:scale-110 transition-all duration-500' />
                                 <div className='relative w-full h-full rounded-full border-4 border-white/5 shadow-2xl z-10'>
-                                    <img src={hero} alt='profile' className='w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500' />
+                                    <img 
+                                        src={profile.avatarUrl || defaultHero} 
+                                        alt='profile' 
+                                        className='w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-500' 
+                                    />
                                     <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-110 group-hover:scale-120 transition-transform duration-500'></div>
                                     <div className='absolute inset-0 border-2 border-teal-500/30 rounded-full scale-120 group-hover:scale-140 transition-transform duration-500'></div>
                                 </div>
@@ -216,15 +232,16 @@ const Hero = () => {
                         </div>
 
                         <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 dark:text-white text-gray-800'>
-                            Hello, I'm <span className='text-teal-700 dark:text-teal-400'>Chamod</span>
+                            Hello, I'm <span className='text-teal-700 dark:text-teal-400'>{displayName}</span>
                         </h1>
 
                         <motion.h2
+                            key={animatedTitle}
                             variants={containerVariants}
                             initial='hidden' animate='visible'
                             className='text-2xl sm:text-3xl font-mono mb-4 dark:text-emerald-500 text-emerald-700 flex items-center justify-center 
                                 lg:justify-start flex-wrap'>
-                            {text.split("").map((char, index) => {
+                            {animatedTitle.split("").map((char, index) => {
                                 const isBracket = char === "<" || char === ">";
                                 return (
                                     <motion.span
@@ -247,9 +264,7 @@ const Hero = () => {
                         </motion.h2>
 
                         <p className='mb-6 leading-relaxed max-w-md lg:max-w-lg dark:text-emerald-100/80 text-emerald-950'>
-                            Welcome to my portfolio! I am DMD Chamod Nirmal, a multi-disciplinary Full Stack Developer and Tech Enthusiast.
-                            From building robust web and desktop applications to developing hardware-integrated IoT systems with ESP32, Arduino,
-                            and other microcontrollers, and crafting high-quality video content, I deliver complete end-to-end digital solutions.
+                            {profile.bio}
                         </p>
 
                         {/* --- Number Counting Animation --- */}
@@ -270,14 +285,12 @@ const Hero = () => {
 
                         {/* --- Buttons Section --- */}
                         <div className='flex flex-col sm:flex-row gap-5 w-full sm:w-auto items-center mt-4'>
-
-                            {/* Real-time CV Download Button */}
                             <AnimatedDownloadButton cvFile={CV} />
 
-                            <a href="#contact"
+                            <a href="#contacts"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    document.getElementById('contacts').scrollIntoView({
+                                    document.getElementById('contacts')?.scrollIntoView({
                                         behavior: 'smooth'
                                     });
                                 }} className='w-full sm:w-auto group'>
@@ -296,7 +309,7 @@ const Hero = () => {
                 </div>
             </div>
         </section>
-    )
-}
+    );
+};
 
 export default Hero;

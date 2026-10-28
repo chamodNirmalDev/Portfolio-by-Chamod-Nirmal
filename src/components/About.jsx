@@ -1,49 +1,64 @@
-import { ArrowRight } from 'lucide-react'
-import React from 'react'
-import { FaGithub, FaInstagram, FaTiktok, FaYoutube, FaFacebook, FaLinkedin } from 'react-icons/fa'
-import about from '../assets/hero.png'
+import React, { useState, useEffect } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { FaGithub, FaInstagram, FaTiktok, FaYoutube, FaFacebook, FaLinkedin } from 'react-icons/fa';
+import about from '../assets/hero.png';
+
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const About = () => {
+    const [socials, setSocials] = useState({});
 
-    /* සමාජ මාධ්‍ය දත්ත ලැයිස්තුව (Brand Colors සහිතව) */
+    // Fetch live social links from backend/MongoDB
+    useEffect(() => {
+        fetch(`${API_URL}/api/profile`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data?.socials) {
+                    setSocials(data.data.socials);
+                }
+            })
+            .catch(err => console.error('Error fetching socials in About:', err));
+    }, []);
+
+    // සමාජ මාධ්‍ය දත්ත ලැයිස්තුව (Backend එකෙන් ලැබෙන සජීවී URLs සහිතව)
     const socialLinks = [
         {
             icon: FaLinkedin,
             label: 'LinkedIn',
             color: 'hover:text-blue-600 hover:border-blue-600/40',
-            url: 'https://www.linkedin.com/in/chamod-nirmal-79113528a'
+            url: socials.linkedin || 'https://www.linkedin.com/in/chamod-nirmal-79113528a'
         },
         {
             icon: FaGithub,
             label: 'GitHub',
             color: 'hover:text-gray-800 dark:hover:text-white hover:border-gray-800/40 dark:hover:border-gray-200/40',
-            url: 'https://github.com/chamodNirmalDev'
+            url: socials.github || 'https://github.com/chamodNirmalDev'
         },
         {
             icon: FaYoutube,
             label: 'YouTube',
             color: 'hover:text-red-500 hover:border-red-500/40',
-            url: 'https://www.youtube.com/@chamodnirmal3476'
+            url: socials.youtube || 'https://www.youtube.com/@chamodnirmal3476'
         },
         {
             icon: FaFacebook,
             label: 'Facebook',
             color: 'hover:text-blue-500 hover:border-blue-500/40',
-            url: 'https://www.facebook.com/chamod.nirmal.792'
+            url: socials.facebook || 'https://www.facebook.com/chamod.nirmal.792'
         },
         {
             icon: FaInstagram,
             label: 'Instagram',
             color: 'hover:text-pink-500 hover:border-pink-500/40',
-            url: 'https://www.instagram.com/chamod.nirmal.792/'
+            url: socials.instagram || 'https://www.instagram.com/chamod.nirmal.792/'
         },
         {
             icon: FaTiktok,
             label: 'TikTok',
             color: 'hover:text-black dark:hover:text-white hover:border-black/40 dark:hover:border-gray-200/40',
-            url: 'https://www.tiktok.com/@chamod.nirmal90'
+            url: socials.tiktok || 'https://www.tiktok.com/@chamod.nirmal90'
         }
-    ]
+    ];
 
     return (
         <section id='about' className='min-h-screen flex items-center py-20 pt-2 px-4 sm:px-6 overflow-hidden relative'>
@@ -79,33 +94,33 @@ const About = () => {
                     {/* සමාජ මාධ්‍ය බොත්තම් පෙළගැස්ම */}
                     <div className='flex flex-wrap justify-center lg:justify-start gap-4 mb-8'>
                         {socialLinks.map((social, index) => {
-                            const IconComponent = social.icon
+                            const IconComponent = social.icon;
                             return (
                                 <a
                                     key={index}
-                                    href={social.url} // මෙතන තමා වෙනස කළේ
-                                    target="_blank" // අලුත් ටැබ් එකකින් ඕපන් වෙන්න
-                                    rel="noopener noreferrer" // ආරක්ෂාව සඳහා
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     aria-label={social.label}
                                     data-aos='zoom-in'
                                     data-aos-delay={index * 150}
                                     className={`w-12 h-12 rounded-full flex items-center justify-center text-xl
                                     border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50
                                     backdrop-blur-sm dark:text-gray-300 text-gray-700 transition-all duration-300
-                                    hover:scale-110 hover:shadow-lg ${social.color}`}>
+                                    hover:scale-110 hover:shadow-lg cursor-pointer ${social.color}`}>
                                     <IconComponent />
                                 </a>
-                            )
+                            );
                         })}
                     </div>
 
-                    {/* "Let's Talk" බොත්තම - Teal වර්ණයෙන් */}
-                    <a href="#contacts" data-aos='fade-up' data-aos-delay='300'> {/* මෙතන #contacts කියලා හැදුවොත් හරියටම පල්ලෙහාට යයි */}
+                    {/* "Let's Talk" බොත්තම */}
+                    <a href="#contacts" data-aos='fade-up' data-aos-delay='300'>
                         <button className='w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full
                                 border-2 dark:border-emerald-500 border-teal-600 dark:text-white text-gray-800
                                 hover:text-white dark:hover:text-white font-semibold
                                 dark:hover:bg-emerald-500 hover:bg-teal-600 hover:shadow-[0_0_40px_rgba(20,184,166,0.5)]
-                                transition-all duration-300 transform hover:scale-105 whitespace-nowrap'>
+                                transition-all duration-300 transform hover:scale-105 whitespace-nowrap cursor-pointer'>
                             Let's Talk
                             <ArrowRight size={18} />
                         </button>
@@ -116,7 +131,7 @@ const About = () => {
                 <div className='relative order-1 lg:order-2 flex justify-center' data-aos='fade-left'>
                     <div className='relative w-full max-w-sm sm:max-w-md'>
 
-                        {/* පින්තූරය පිටුපස ඇති ආලෝකය සහ හැඩය - Teal වර්ණයෙන් */}
+                        {/* පින්තූරය පිටුපස ඇති ආලෝකය සහ හැඩය */}
                         <div className='absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700
                             rounded-[40%_60%_60%/40%_60%_70%] filter blur-xl opacity-40 animate-pulse'>
                         </div>
@@ -125,15 +140,18 @@ const About = () => {
                         </div>
 
                         {/* ප්‍රධාන පින්තූරය */}
-                        <img src={about} alt="About"
+                        <img 
+                            src={about} 
+                            alt="About"
                             className='relative z-10 rounded-[40%_60%_60%/40%_60%_70%] shadow-2xl w-full
-                            h-auto object-cover border-2 border-teal-500/30 backdrop-blur-sm'/>
+                            h-auto object-cover border-2 border-teal-500/30 backdrop-blur-sm'
+                        />
                     </div>
                 </div>
             </div>
 
         </section>
-    )
-}
+    );
+};
 
-export default About
+export default About;
