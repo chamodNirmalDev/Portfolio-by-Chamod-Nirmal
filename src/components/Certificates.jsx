@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import CertificateImg from '../assets/certificates.png';
 import computerSkillsImg from '../assets/certificates/computer-basic-skills.jpeg';
 import englishDiplomaImg from '../assets/certificates/english-advanced-diploma.jpeg';
@@ -137,9 +137,9 @@ const fallbackCertificates = [
 
 const sectionVariants = {
     hidden: { opacity: 0, y: 50, filter: "blur(10px)" },
-    visible: {
-        opacity: 1,
-        y: 0,
+    visible: { 
+        opacity: 1, 
+        y: 0, 
         filter: "blur(0px)",
         transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.25 }
     }
@@ -147,47 +147,47 @@ const sectionVariants = {
 
 const leftColVariants = {
     hidden: { opacity: 0, x: -60, scale: 0.94, filter: "blur(8px)" },
-    visible: {
-        opacity: 1,
-        x: 0,
-        scale: 1,
+    visible: { 
+        opacity: 1, 
+        x: 0, 
+        scale: 1, 
         filter: "blur(0px)",
-        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }
+        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] } 
     }
 };
 
 const rightColVariants = {
     hidden: { opacity: 0, x: 60, filter: "blur(8px)" },
-    visible: {
-        opacity: 1,
-        x: 0,
+    visible: { 
+        opacity: 1, 
+        x: 0, 
         filter: "blur(0px)",
-        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.15 }
+        transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.15 } 
     }
 };
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.15, delayChildren: 0.05 }
+    visible: { 
+        opacity: 1, 
+        transition: { staggerChildren: 0.15, delayChildren: 0.05 } 
     },
-    exit: {
-        opacity: 0,
-        y: -15,
-        filter: "blur(6px)",
-        transition: { duration: 0.4, ease: "easeInOut" }
+    exit: { 
+        opacity: 0, 
+        y: -15, 
+        filter: "blur(6px)", 
+        transition: { duration: 0.4, ease: "easeInOut" } 
     },
 };
 
 const itemVariants = {
     hidden: { opacity: 0, y: 25, scale: 0.97, filter: "blur(4px)" },
-    visible: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
+    visible: { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
         filter: "blur(0px)",
-        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } 
     },
 };
 
@@ -221,9 +221,39 @@ const Certificate = () => {
         fetchCertificates();
     }, []);
 
-    const filtered = activeCategory === 'All'
-        ? certificates
-        : certificates.filter(c => c.category === activeCategory);
+    // Helper: දිනයෙන් අවසන්/විශාලතම වර්ෂය ලබාගැනීම
+    const extractYear = (dateStr) => {
+        if (!dateStr) return 0;
+        if (dateStr.toLowerCase().includes('present')) return 9999;
+        const matches = dateStr.match(/\b(19\d{2}|20\d{2})\b/g);
+        if (matches && matches.length > 0) {
+            return Math.max(...matches.map(Number));
+        }
+        return 0;
+    };
+
+    // Category Filter සහ In Progress ප්‍රමුඛතාවය සහිතව Sort කිරීම
+    const filtered = useMemo(() => {
+        const categoryFiltered = activeCategory === 'All'
+            ? certificates
+            : certificates.filter(c => c.category === activeCategory);
+
+        return [...categoryFiltered].sort((a, b) => {
+            // 1. In Progress ඒවා ඉහළටම
+            const aInProgress = a.status === 'In Progress' ? 1 : 0;
+            const bInProgress = b.status === 'In Progress' ? 1 : 0;
+
+            if (aInProgress !== bInProgress) {
+                return bInProgress - aInProgress;
+            }
+
+            // 2. අලුත්ම දිනයේ සිට පැරණි දිනයට (Latest to Oldest)
+            const yearA = extractYear(a.date);
+            const yearB = extractYear(b.date);
+
+            return yearB - yearA;
+        });
+    }, [certificates, activeCategory]);
 
     const completedCount = certificates.filter(c => c.status === 'Completed').length;
     const inProgressCount = certificates.length - completedCount;
@@ -261,19 +291,19 @@ const Certificate = () => {
     return (
         <section id="certificates" className="min-h-screen flex items-center relative overflow-hidden pt-20 pb-32">
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                <motion.div 
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }} 
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} 
                     className="absolute top-1/4 -left-20 w-80 h-80 bg-teal-500/15 rounded-full blur-[110px]"
                 />
-                <motion.div
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                <motion.div 
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }} 
+                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
                     className="absolute bottom-10 -right-20 w-96 h-96 bg-emerald-500/15 rounded-full blur-[120px]"
                 />
             </div>
 
-            <motion.div
+            <motion.div 
                 variants={sectionVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -281,15 +311,15 @@ const Certificate = () => {
                 className="container mx-auto px-4 sm:px-8 lg:px-14 relative z-10"
             >
                 <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 lg:gap-20 max-w-6xl mx-auto">
-
+                    
                     {/* Left: Image + Stats */}
                     <motion.div
                         variants={leftColVariants}
                         className="lg:w-5/12 w-full flex flex-col items-center lg:sticky lg:top-28"
                     >
-                        <motion.div
-                            animate={{ y: [0, -8, 0] }}
-                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                        <motion.div 
+                            animate={{ y: [0, -8, 0] }} 
+                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} 
                             className="relative group"
                         >
                             <div className="absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700 rounded-3xl filter blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
@@ -364,7 +394,7 @@ const Certificate = () => {
                         </div>
 
                         {/* Scrollable Certificates List */}
-                        <div
+                        <div 
                             ref={listRef}
                             className="w-full max-h-[330px] overflow-y-auto pr-2 cert-scroll"
                         >
