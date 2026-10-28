@@ -93,7 +93,7 @@ const Contact = () => {
 
                             {/* WhatsApp Box */}
                             <a
-                                href="https://wa.me/94711234567" // මෙතන ඔයාගේ නම්බර් එක දාන්න
+                                href="https://wa.me/94704920502" // මෙතන ඔයාගේ නම්බර් එක දාන්න
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-800 hover:bg-gray-800/50 hover:border-teal-500/30 transition-all cursor-pointer group"

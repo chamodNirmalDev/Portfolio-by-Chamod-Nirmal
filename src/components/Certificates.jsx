@@ -6,8 +6,10 @@ import gceEnglishImg from '../assets/certificates/gce-english-forum.jpeg';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Award, Calendar, ExternalLink, GraduationCap,
-    ShieldCheck, Languages, CheckCircle2, Clock, Eye, X, Download
+    ShieldCheck, Languages, CheckCircle2, Clock, Eye, X, Download, Loader2
 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const categories = ['All', 'Education', 'Professional', 'Language'];
 
@@ -17,7 +19,8 @@ const categoryIcon = {
     Language: Languages,
 };
 
-const certificates = [
+// Fallback Data (Database එකේ දත්ත නැති විට පෙන්වීමට)
+const fallbackCertificates = [
     {
         id: 1,
         title: 'BSc (Hons) Software Engineering (Top-up)',
@@ -132,24 +135,16 @@ const certificates = [
     },
 ];
 
-// --- වේගය අඩු කරන ලද (Slow & Smooth) Animation Variants ---
-
-// මුළු Section එකම හෙමිහිට (1.2s) Smooth විදිහට මතුවීමට
 const sectionVariants = {
     hidden: { opacity: 0, y: 50, filter: "blur(10px)" },
     visible: { 
         opacity: 1, 
         y: 0, 
         filter: "blur(0px)",
-        transition: { 
-            duration: 1.2, 
-            ease: [0.22, 1, 0.36, 1], // ඉතාමත් මෘදු Cinematic easing එකක්
-            staggerChildren: 0.25 
-        }
+        transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1], staggerChildren: 0.25 }
     }
 };
 
-// වම් පැත්තේ පින්තූරය සහ Stats හෙමිහිට (1.1s) පැමිණීමට
 const leftColVariants = {
     hidden: { opacity: 0, x: -60, scale: 0.94, filter: "blur(8px)" },
     visible: { 
@@ -161,7 +156,6 @@ const leftColVariants = {
     }
 };
 
-// දකුණු පැත්තේ කොටස් හෙමිහිට (1.1s) මතුවීමට
 const rightColVariants = {
     hidden: { opacity: 0, x: 60, filter: "blur(8px)" },
     visible: { 
@@ -172,22 +166,20 @@ const rightColVariants = {
     }
 };
 
-// ටැබ් මාරු කරද්දී කාඩ් ලැයිස්තුව හෙමිහිට මාරුවීමට
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
         opacity: 1, 
-        transition: { staggerChildren: 0.15, delayChildren: 0.05 } // කාඩ් එකින් එක එන පරතරය වැඩි කර ඇත
+        transition: { staggerChildren: 0.15, delayChildren: 0.05 } 
     },
     exit: { 
         opacity: 0, 
         y: -15, 
         filter: "blur(6px)", 
-        transition: { duration: 0.4, ease: "easeInOut" } // ඉවත් වන වේගයද මෘදු කර ඇත
+        transition: { duration: 0.4, ease: "easeInOut" } 
     },
 };
 
-// එක් එක් සහතික කාඩ්පත හෙමිහිට (0.7s) මතුවීමට
 const itemVariants = {
     hidden: { opacity: 0, y: 25, scale: 0.97, filter: "blur(4px)" },
     visible: { 
@@ -203,11 +195,31 @@ const linkClass =
     "inline-flex items-center gap-1 text-xs font-semibold text-teal-600 dark:text-emerald-400 hover:underline cursor-pointer";
 
 const Certificate = () => {
+    const [certificates, setCertificates] = useState(fallbackCertificates);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
     const [copiedId, setCopiedId] = useState(null);
     const [preview, setPreview] = useState(null);
 
     const listRef = useRef(null);
+
+    // Fetch from MongoDB
+    useEffect(() => {
+        const fetchCertificates = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/certificates`);
+                const result = await res.json();
+                if (result.success && result.data && result.data.length > 0) {
+                    setCertificates(result.data);
+                }
+            } catch (err) {
+                console.error("Using fallback certificates due to fetch error:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchCertificates();
+    }, []);
 
     const filtered = activeCategory === 'All'
         ? certificates
@@ -224,7 +236,7 @@ const Certificate = () => {
 
     const handleCopy = (cert) => {
         navigator.clipboard?.writeText(cert.credentialId);
-        setCopiedId(cert.id);
+        setCopiedId(cert._id || cert.id);
         setTimeout(() => setCopiedId(null), 1500);
     };
 
@@ -248,8 +260,6 @@ const Certificate = () => {
 
     return (
         <section id="certificates" className="min-h-screen flex items-center relative overflow-hidden pt-20 pb-32">
-            
-            {/* Ambient Animated Background Glows */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                 <motion.div 
                     animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }} 
@@ -271,16 +281,15 @@ const Certificate = () => {
                 className="container mx-auto px-4 sm:px-8 lg:px-14 relative z-10"
             >
                 <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 lg:gap-20 max-w-6xl mx-auto">
-
-                    {/* --- Left: Image + Stats --- */}
+                    
+                    {/* Left: Image + Stats */}
                     <motion.div
                         variants={leftColVariants}
                         className="lg:w-5/12 w-full flex flex-col items-center lg:sticky lg:top-28"
                     >
-                        {/* Slow Floating Image Animation (7 seconds) */}
                         <motion.div 
-                            animate={{ y: [0, -8, 0] }}
-                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                            animate={{ y: [0, -8, 0] }} 
+                            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} 
                             className="relative group"
                         >
                             <div className="absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700 rounded-3xl filter blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
@@ -295,7 +304,6 @@ const Certificate = () => {
                             </div>
                         </motion.div>
 
-                        {/* Stats with Slower Staggered Pop-in */}
                         <div className="mt-10 grid grid-cols-3 gap-3 w-full max-w-sm">
                             {stats.map((stat, idx) => (
                                 <motion.div
@@ -314,7 +322,7 @@ const Certificate = () => {
                         </div>
                     </motion.div>
 
-                    {/* --- Right: Content --- */}
+                    {/* Right: Content */}
                     <motion.div
                         variants={rightColVariants}
                         className="lg:w-7/12 w-full flex flex-col items-center lg:items-start"
@@ -328,7 +336,7 @@ const Certificate = () => {
                             Certifications <span className="text-teal-600 dark:text-emerald-400">& Education</span>
                         </h2>
                         <p className="mb-8 text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-xl text-center lg:text-left leading-relaxed">
-                            Academic qualifications and professional certifications that back my skills in software engineering, AI/ML, and cybersecurity.
+                            Academic qualifications and professional certifications synchronized live from MongoDB.
                         </p>
 
                         {/* Filter Tabs */}
@@ -347,7 +355,7 @@ const Certificate = () => {
                                         <motion.div
                                             layoutId="certTabIndicator"
                                             className="absolute inset-0 bg-teal-600 rounded-full -z-10"
-                                            transition={{ type: "spring", stiffness: 130, damping: 22 }} // Tab indicator එකේ වේගයද මෘදු කර ඇත
+                                            transition={{ type: "spring", stiffness: 130, damping: 22 }}
                                         />
                                     )}
                                     <span className="relative z-10">{category}</span>
@@ -360,110 +368,113 @@ const Certificate = () => {
                             ref={listRef}
                             className="w-full max-h-[330px] overflow-y-auto pr-2 cert-scroll"
                         >
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeCategory}
-                                    variants={containerVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                    exit="exit"
-                                    className="w-full flex flex-col gap-3 pb-2"
-                                >
-                                    {filtered.map(cert => {
-                                        const Icon = categoryIcon[cert.category] || Award;
-                                        const isDone = cert.status === 'Completed';
+                            {isLoading ? (
+                                <div className="flex justify-center py-12">
+                                    <Loader2 size={28} className="animate-spin text-teal-500" />
+                                </div>
+                            ) : (
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeCategory}
+                                        variants={containerVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        exit="exit"
+                                        className="w-full flex flex-col gap-3 pb-2"
+                                    >
+                                        {filtered.map(cert => {
+                                            const Icon = categoryIcon[cert.category] || Award;
+                                            const isDone = cert.status === 'Completed';
 
-                                        return (
-                                            <motion.div
-                                                key={cert.id}
-                                                variants={itemVariants}
-                                                whileHover={{ scale: 1.01, x: 4, transition: { duration: 0.3 } }}
-                                                className="group p-4 rounded-2xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-gray-200 dark:border-zinc-800 hover:border-teal-500/40 hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-300"
-                                            >
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-
-                                                    {/* Icon + Title */}
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shrink-0">
-                                                            <Icon size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
-                                                                {cert.title}
-                                                            </h3>
-                                                            <span className="text-sm text-gray-600 dark:text-zinc-400 block mt-0.5">
-                                                                {cert.issuer}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Meta */}
-                                                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 shrink-0 max-sm:border-t max-sm:border-gray-100/50 max-sm:dark:border-zinc-700/30 max-sm:pt-2">
-                                                        <div className="flex flex-col items-start sm:items-end gap-1">
-                                                            {cert.date && (
-                                                                <div className="flex items-center gap-1.5 text-xs font-mono text-gray-500 dark:text-zinc-400">
-                                                                    <Calendar size={13} />
-                                                                    <span>{cert.date}</span>
-                                                                </div>
-                                                            )}
-
-                                                            {cert.credentialId && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleCopy(cert)}
-                                                                    title="Click to copy credential ID"
-                                                                    className="text-[11px] font-mono text-gray-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
-                                                                >
-                                                                    {copiedId === cert.id ? 'Copied ✓' : `ID: ${cert.credentialId}`}
-                                                                </button>
-                                                            )}
+                                            return (
+                                                <motion.div
+                                                    key={cert._id || cert.id}
+                                                    variants={itemVariants}
+                                                    whileHover={{ scale: 1.01, x: 4, transition: { duration: 0.3 } }}
+                                                    className="group p-4 rounded-2xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-gray-200 dark:border-zinc-800 hover:border-teal-500/40 hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-300"
+                                                >
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shrink-0">
+                                                                <Icon size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
+                                                                    {cert.title}
+                                                                </h3>
+                                                                <span className="text-sm text-gray-600 dark:text-zinc-400 block mt-0.5">
+                                                                    {cert.issuer}
+                                                                </span>
+                                                            </div>
                                                         </div>
 
-                                                        <div className="flex flex-wrap items-center sm:justify-end gap-x-3 gap-y-1">
-                                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${isDone
-                                                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                                                                : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-                                                                }`}>
-                                                                {isDone ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                                                                {cert.status}
-                                                            </span>
+                                                        <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 shrink-0 max-sm:border-t max-sm:border-gray-100/50 max-sm:dark:border-zinc-700/30 max-sm:pt-2">
+                                                            <div className="flex flex-col items-start sm:items-end gap-1">
+                                                                {cert.date && (
+                                                                    <div className="flex items-center gap-1.5 text-xs font-mono text-gray-500 dark:text-zinc-400">
+                                                                        <Calendar size={13} />
+                                                                        <span>{cert.date}</span>
+                                                                    </div>
+                                                                )}
 
-                                                            {cert.credentials?.map(link =>
-                                                                link.type === 'image' ? (
+                                                                {cert.credentialId && (
                                                                     <button
-                                                                        key={link.label}
                                                                         type="button"
-                                                                        onClick={() => setPreview({ url: link.url, title: cert.title })}
-                                                                        className={linkClass}
+                                                                        onClick={() => handleCopy(cert)}
+                                                                        title="Click to copy credential ID"
+                                                                        className="text-[11px] font-mono text-gray-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                                                                     >
-                                                                        {link.label} <Eye size={12} />
+                                                                        {copiedId === (cert._id || cert.id) ? 'Copied ✓' : `ID: ${cert.credentialId}`}
                                                                     </button>
-                                                                ) : (
-                                                                    <a
-                                                                        key={link.label}
-                                                                        href={link.url}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className={linkClass}
-                                                                    >
-                                                                        {link.label} <ExternalLink size={11} />
-                                                                    </a>
-                                                                )
-                                                            )}
+                                                                )}
+                                                            </div>
+
+                                                            <div className="flex flex-wrap items-center sm:justify-end gap-x-3 gap-y-1">
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${isDone
+                                                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                                                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                                                                    }`}>
+                                                                    {isDone ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                                                                    {cert.status}
+                                                                </span>
+
+                                                                {cert.credentials?.map(link =>
+                                                                    link.type === 'image' ? (
+                                                                        <button
+                                                                            key={link.label}
+                                                                            type="button"
+                                                                            onClick={() => setPreview({ url: link.url, title: cert.title })}
+                                                                            className={linkClass}
+                                                                        >
+                                                                            {link.label} <Eye size={12} />
+                                                                        </button>
+                                                                    ) : (
+                                                                        <a
+                                                                            key={link.label}
+                                                                            href={link.url}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className={linkClass}
+                                                                        >
+                                                                            {link.label} <ExternalLink size={11} />
+                                                                        </a>
+                                                                    )
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </motion.div>
-                            </AnimatePresence>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
                         </div>
                     </motion.div>
                 </div>
             </motion.div>
 
-            {/* --- Certificate Preview Popup --- */}
+            {/* Certificate Preview Popup */}
             <AnimatePresence>
                 {preview && (
                     <motion.div
@@ -485,7 +496,6 @@ const Certificate = () => {
                             onClick={(e) => e.stopPropagation()}
                             className="relative max-w-3xl w-full flex flex-col items-center bg-zinc-900/90 border border-white/10 p-4 sm:p-6 rounded-2xl shadow-2xl"
                         >
-                            {/* Close Button */}
                             <button
                                 type="button"
                                 onClick={() => setPreview(null)}
@@ -498,7 +508,7 @@ const Certificate = () => {
                             <a 
                                 href={preview.url} 
                                 target="_blank" 
-                                rel="noopener noreferrer"
+                                rel="noopener noreferrer" 
                                 title="Click to open full size in new tab"
                                 className="w-full flex justify-center cursor-zoom-in overflow-hidden rounded-xl border border-white/10 bg-black/40"
                             >
