@@ -12,7 +12,8 @@ const CATEGORIES = ['Education', 'Professional', 'Language'];
 const initialForm = {
     title: '',
     issuer: '',
-    date: '',
+    startDate: '',
+    endDate: '',
     category: 'Professional',
     status: 'Completed',
     credentialId: '',
@@ -31,6 +32,7 @@ const ExperienceEducation = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
 
+    // 1. Fetch All Certificates & Degrees from MongoDB
     const fetchCertificates = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -50,14 +52,14 @@ const ExperienceEducation = () => {
         fetchCertificates();
     }, [fetchCertificates]);
 
-    // Image File Chooser හැසිරවීම (Base64 conversion)
+    // File Chooser Handler (Base64 conversion)
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Vercel serverless payload limit එක 4.5MB නිසා 1.5MB වලට සීමා කිරීම වඩාත් ආරක්ෂිතයි
+        // Vercel serverless payload limit ගැටළු මඟහරවා ගැනීමට 1.5MB සීමාව
         if (file.size > 1.5 * 1024 * 1024) {
-            alert('File size exceeds 1.5MB. Please choose a smaller image or use an image link.');
+            alert('File size exceeds 1.5MB. Please choose a smaller image or use an external URL.');
             return;
         }
 
@@ -73,16 +75,24 @@ const ExperienceEducation = () => {
         reader.readAsDataURL(file);
     };
 
+    // Modal විවෘත කිරීම
     const openModal = (cert = null) => {
         if (cert) {
             setEditingId(cert._id);
             const firstCred = cert.credentials?.[0] || {};
             const credType = firstCred.type || (firstCred.url ? 'link' : 'image');
             const credUrl = firstCred.url || '';
+
+            // පවතින "2023 – 2025" හෝ "Jul – Aug 2026" වැනි දිනයන් Start සහ End වලට වෙන් කර ගැනීම
+            const dateParts = (cert.date || '').split(/–|-/).map(s => s.trim());
+            const start = dateParts[0] || '';
+            const end = dateParts[1] || '';
+
             setFormData({
                 title: cert.title || '',
                 issuer: cert.issuer || '',
-                date: cert.date || '',
+                startDate: start,
+                endDate: end,
                 category: cert.category || 'Professional',
                 status: cert.status || 'Completed',
                 credentialId: cert.credentialId || '',
@@ -106,6 +116,7 @@ const ExperienceEducation = () => {
         setImagePreview(null);
     };
 
+    // Save or Update Record
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('adminToken');
@@ -113,10 +124,15 @@ const ExperienceEducation = () => {
 
         setIsSaving(true);
 
+        // Start Date සහ End Date දෙකම තිබේ නම් "Start – End" ලෙස සකස් කිරීම
+        const formattedDate = formData.startDate && formData.endDate
+            ? `${formData.startDate} – ${formData.endDate}`
+            : formData.startDate || formData.endDate || '';
+
         const payload = {
             title: formData.title.trim(),
             issuer: formData.issuer.trim(),
-            date: formData.date.trim(),
+            date: formattedDate.trim(),
             category: formData.category,
             status: formData.status,
             credentialId: formData.credentialId.trim(),
@@ -156,6 +172,7 @@ const ExperienceEducation = () => {
         }
     };
 
+    // Delete Record
     const handleDelete = async (id, title) => {
         if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
         const token = localStorage.getItem('adminToken');
@@ -181,6 +198,8 @@ const ExperienceEducation = () => {
 
     return (
         <div className="flex-1 p-6 overflow-y-auto relative">
+            
+            {/* Top Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Certifications & Education Management</h2>
@@ -208,6 +227,7 @@ const ExperienceEducation = () => {
                 </div>
             </div>
 
+            {/* List / Cards Section */}
             {isLoading ? (
                 <div className="flex justify-center py-24">
                     <Loader2 size={32} className="animate-spin text-teal-500" />
@@ -218,6 +238,7 @@ const ExperienceEducation = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
+                    
                     {/* Education Column */}
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2 border-b border-teal-500/20 pb-3">
@@ -291,10 +312,11 @@ const ExperienceEducation = () => {
                 </div>
             )}
 
-            {/* Modal */}
+            {/* Add / Edit Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white dark:bg-gray-900 border border-teal-500/20 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+                        
                         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
                             <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                                 {editingId ? 'Edit Certificate / Degree' : 'Add New Certificate / Degree'}
@@ -329,7 +351,8 @@ const ExperienceEducation = () => {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* Category & Status */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                                     <select 
@@ -351,14 +374,28 @@ const ExperienceEducation = () => {
                                         <option value="In Progress">In Progress</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            {/* Start Date & End Date Inputs */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                                     <input 
                                         type="text" 
-                                        value={formData.date}
-                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                        placeholder="e.g., May 2024" 
-                                        className="w-full px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
+                                        value={formData.startDate}
+                                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                        placeholder="e.g., 2023 or May 2024" 
+                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date (Optional)</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.endDate}
+                                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                        placeholder="e.g., 2025 or Present" 
+                                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                     />
                                 </div>
                             </div>
