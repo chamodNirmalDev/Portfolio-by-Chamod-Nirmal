@@ -22,7 +22,7 @@ const About = () => {
                     setAboutData(prev => ({ ...prev, ...data.data }));
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error('Error fetching about data:', err));
     }, []);
 
     const socialLinks = [
@@ -37,6 +37,8 @@ const About = () => {
     return (
         <section id='about' className='min-h-screen flex items-center py-20 pt-2 px-4 sm:px-6 overflow-hidden relative'>
             <div className='max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10'>
+                
+                {/* වම්පස අකුරු කොටස */}
                 <div className='order-2 lg:order-1 flex flex-col items-center lg:items-start text-center lg:text-left' data-aos='fade-right'>
                     <div className='inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 mb-4'>
                         <span className='w-2 h-2 rounded-full bg-red-500 animate-pulse'></span>
@@ -52,6 +54,7 @@ const About = () => {
                         {aboutData.aboutBio}
                     </p>
 
+                    {/* Social Media Links */}
                     <div className='flex flex-wrap justify-center lg:justify-start gap-4 mb-8'>
                         {socialLinks.map((social, index) => {
                             const IconComponent = social.icon;
@@ -62,7 +65,7 @@ const About = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label={social.label}
-                                    className={`w-12 h-12 rounded-full flex items-center justify-center text-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm dark:text-gray-300 text-gray-700 transition-all hover:scale-110 ${social.color}`}
+                                    className={`w-12 h-12 rounded-full flex items-center justify-center text-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm dark:text-gray-300 text-gray-700 transition-all hover:scale-110 cursor-pointer ${social.color}`}
                                 >
                                     <IconComponent />
                                 </a>
@@ -77,16 +80,26 @@ const About = () => {
                     </a>
                 </div>
 
-                <div className='relative order-1 lg:order-2 flex justify-center' data-aos='fade-left'>
-                    <div className='relative w-full max-w-sm sm:max-w-md'>
+                {/* දකුණුපස පින්තූර රාමුව (Fixed Dimensions & Safe Clipping) */}
+                <div className='relative order-1 lg:order-2 flex justify-center items-center w-full' data-aos='fade-left'>
+                    <div className='relative w-64 h-80 sm:w-80 sm:h-96 md:w-96 md:h-[430px] max-w-full flex items-center justify-center'>
+
+                        {/* පසුබිම් Glow & Border Effects */}
                         <div className='absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700 rounded-[40%_60%_60%/40%_60%_70%] filter blur-xl opacity-40 animate-pulse'></div>
-                        <img 
-                            src={aboutData.avatarUrl || defaultAbout} 
-                            alt="About" 
-                            className='relative z-10 rounded-[40%_60%_60%/40%_60%_70%] shadow-2xl w-full h-auto object-cover border-2 border-teal-500/30' 
-                        />
+                        <div className='absolute inset-0 bg-linear-to-r from-teal-500 to-emerald-700 rounded-[40%_60%_60%/40%_60%_70%] transform rotate-3 scale-105'></div>
+
+                        {/* පින්තූරය පිටතට නොපනින ලෙස රඳවා ගන්නා ප්‍රධාන Masked Container එක */}
+                        <div className='relative z-10 w-full h-full rounded-[40%_60%_60%/40%_60%_70%] overflow-hidden border-2 border-teal-500/40 shadow-2xl bg-gray-900'>
+                            <img 
+                                src={aboutData.avatarUrl || defaultAbout} 
+                                alt="About Profile" 
+                                className='w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700' 
+                            />
+                        </div>
+
                     </div>
                 </div>
+
             </div>
         </section>
     );
