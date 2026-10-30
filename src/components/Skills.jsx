@@ -67,7 +67,7 @@ const iconMap = {
 };
 
 const Skills = () => {
-    const categories = [
+const categories = [
         'All',
         'Web Based',
         'Frontend',
@@ -77,7 +77,10 @@ const Skills = () => {
         'Database',
         'AI & ML',
         'Robotics & IoT',
-        'Tools'
+        'Tools',
+        'Management',
+        'Languages / Communication',
+        'Soft Skills'
     ];
 
     const [activeCategory, setActiveCategory] = useState('All');
