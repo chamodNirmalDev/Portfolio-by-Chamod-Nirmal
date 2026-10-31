@@ -1,17 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as FaIcons from 'react-icons/fa';
-import * as SiIcons from 'react-icons/si';
-import * as VscIcons from 'react-icons/vsc';
-import * as TbIcons from 'react-icons/tb';
-import { X, Loader2, Code } from 'lucide-react';
+import { 
+    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython, 
+    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo, 
+    FaPaintBrush, FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
+    FaBrain, FaRobot, FaTools 
+} from 'react-icons/fa';
+import {
+    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet, SiGraphql,
+    SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
+    SiPostman, SiKotlin, SiFlutter, SiTensorflow, SiPytorch, SiOpencv,
+    SiElectron, SiRaspberrypi, SiSpringboot, SiIntellijidea, SiUnity,
+    SiMysql as SiWorkbench
+} from 'react-icons/si';
+import { VscVscode } from 'react-icons/vsc';
+import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
+import { X, Loader2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-// Database එකෙන් එන Icon නමට (String) අනුව අදාළ Icon Component එක තෝරා ගැනීම
-const DynamicIcon = ({ iconName, className }) => {
-    const IconComponent = FaIcons[iconName] || SiIcons[iconName] || VscIcons[iconName] || TbIcons[iconName] || Code;
-    return <IconComponent className={className} />;
+// Skill එකේ නමට අනුව ස්වයංක්‍රීයව Unique Icon එක සහ Color එක ලබා දීම
+const iconMap = {
+    'HTML5': { icon: FaHtml5, color: 'text-[#E34F26]' },
+    'CSS3': { icon: FaCss3Alt, color: 'text-[#1572B6]' },
+    'JavaScript': { icon: SiJavascript, color: 'text-[#F7DF1E]' },
+    'TypeScript': { icon: SiTypescript, color: 'text-[#3178C6]' },
+    'React JS': { icon: FaReact, color: 'text-[#61DAFB]' },
+    'React.js': { icon: FaReact, color: 'text-[#61DAFB]' },
+    'Tailwind CSS': { icon: SiTailwindcss, color: 'text-[#06B6D4]' },
+    'Bootstrap': { icon: FaBootstrap, color: 'text-[#7952B3]' },
+    'Java': { icon: FaJava, color: 'text-[#f89820]' },
+    'Spring Boot': { icon: SiSpringboot, color: 'text-[#6DB33F]' },
+    'C#': { icon: TbBrandCSharp, color: 'text-[#68217A]' },
+    '.NET Framework': { icon: SiDotnet, color: 'text-[#512BD4]' },
+    'Rust': { icon: FaRust, color: 'text-[#DEA584]' },
+    'Node JS': { icon: FaNodeJs, color: 'text-[#339933]' },
+    'Node.js': { icon: FaNodeJs, color: 'text-[#339933]' },
+    'Express JS': { icon: SiExpress, color: 'text-gray-400' },
+    'PHP': { icon: FaPhp, color: 'text-[#777BB4]' },
+    'Python': { icon: FaPython, color: 'text-[#3776AB]' },
+    'Android': { icon: FaAndroid, color: 'text-[#3DDC84]' },
+    'Flutter': { icon: SiFlutter, color: 'text-[#02569B]' },
+    'React Native': { icon: TbBrandReactNative, color: 'text-[#61DAFB]' },
+    'Kotlin': { icon: SiKotlin, color: 'text-[#7F52FF]' },
+    'MySQL': { icon: SiMysql, color: 'text-[#4479A1]' },
+    'MongoDB': { icon: SiMongodb, color: 'text-[#47A248]' },
+    'PostgreSQL': { icon: SiPostgresql, color: 'text-[#4169E1]' },
+    'Hibernate ORM': { icon: SiHibernate, color: 'text-[#59666C]' },
+    'C++ / ESP32': { icon: SiCplusplus, color: 'text-[#00599C]' },
+    'Arduino': { icon: SiArduino, color: 'text-[#00979D]' },
+    'VS Code': { icon: VscVscode, color: 'text-[#007ACC]' },
+    'IntelliJ IDEA': { icon: SiIntellijidea, color: 'text-[#FE315D]' },
+    'Arduino IDE': { icon: SiArduino, color: 'text-[#00979D]' },
+    'MySQL Workbench': { icon: SiWorkbench, color: 'text-[#4479A1]' },
+    'Unity Hub': { icon: SiUnity, color: 'text-white' },
+    'CapCut': { icon: FaVideo, color: 'text-white' },
+    'Figma': { icon: FaFigma, color: 'text-[#F24E1E]' },
+    'Git & GitHub': { icon: FaGitAlt, color: 'text-[#F05032]' },
+    'Postman': { icon: SiPostman, color: 'text-[#FF6C37]' }
 };
 
 const Skills = () => {
@@ -44,12 +90,14 @@ const Skills = () => {
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     const formatted = result.data.map(item => {
+                        // iconMap එකේ නම තියෙනවද බලලා අදාළ icon එක දෙන්න, නැත්නම් Default එකක් දෙන්න
+                        const matchedIcon = iconMap[item.name] || { icon: FaCode, color: 'text-teal-500' };
                         return {
                             id: item._id,
                             name: item.name,
                             categories: item.categories || ['Tools'],
-                            iconName: item.icon || 'FaCode',
-                            color: item.color || 'text-teal-500',
+                            icon: matchedIcon.icon,
+                            color: matchedIcon.color,
                             proficiency: item.proficiency || 85,
                             desc: item.desc || 'Proficient in modern architecture and hands-on software design.'
                         };
@@ -164,7 +212,7 @@ const Skills = () => {
                                         className="flex flex-col items-center justify-center p-4 sm:p-6 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-gray-200 dark:border-zinc-800 rounded-2xl hover:shadow-xl hover:shadow-teal-500/10 hover:border-teal-500/30 transition-all duration-300 group cursor-pointer"
                                     >
                                         <div className={`text-4xl sm:text-5xl mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${skill.color} drop-shadow-[0_0_12px_currentColor]`}>
-                                            <DynamicIcon iconName={skill.iconName} />
+                                            <skill.icon />
                                         </div>
                                         <h3 className="text-xs sm:text-base font-semibold dark:text-gray-200 text-gray-800 text-center group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                                             {skill.name}
@@ -205,7 +253,7 @@ const Skills = () => {
                             </button>
 
                             <div className={`text-6xl sm:text-7xl mb-4 sm:mb-6 ${selectedSkill.color} drop-shadow-[0_0_20px_currentColor]`}>
-                                <DynamicIcon iconName={selectedSkill.iconName} />
+                                <selectedSkill.icon />
                             </div>
 
                             <h3 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900 mb-3">

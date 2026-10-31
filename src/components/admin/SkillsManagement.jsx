@@ -2,68 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
     FaPlus, FaEdit, FaTrash, FaTimes, FaSyncAlt, FaCheck,
     FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers,
-    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython, 
-    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo, 
-    FaPaintBrush 
+    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers 
 } from 'react-icons/fa';
-import {
-    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet, SiGraphql,
-    SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
-    SiPostman, SiKotlin, SiFlutter, SiTensorflow, SiPytorch, SiOpencv,
-    SiElectron, SiRaspberrypi, SiSpringboot, SiIntellijidea, SiUnity
-} from 'react-icons/si';
-import { VscVscode } from 'react-icons/vsc';
-import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-
-// Available Icons for Visual Picker
-const AVAILABLE_ICONS = [
-    { name: 'FaReact', Icon: FaReact, label: 'React' },
-    { name: 'SiJavascript', Icon: SiJavascript, label: 'JavaScript' },
-    { name: 'SiTypescript', Icon: SiTypescript, label: 'TypeScript' },
-    { name: 'FaHtml5', Icon: FaHtml5, label: 'HTML5' },
-    { name: 'FaCss3Alt', Icon: FaCss3Alt, label: 'CSS3' },
-    { name: 'SiTailwindcss', Icon: SiTailwindcss, label: 'Tailwind' },
-    { name: 'FaNodeJs', Icon: FaNodeJs, label: 'Node.js' },
-    { name: 'SiExpress', Icon: SiExpress, label: 'Express' },
-    { name: 'FaJava', Icon: FaJava, label: 'Java' },
-    { name: 'SiSpringboot', Icon: SiSpringboot, label: 'Spring Boot' },
-    { name: 'FaPython', Icon: FaPython, label: 'Python' },
-    { name: 'FaPhp', Icon: FaPhp, label: 'PHP' },
-    { name: 'SiCplusplus', Icon: SiCplusplus, label: 'C++' },
-    { name: 'TbBrandCSharp', Icon: TbBrandCSharp, label: 'C#' },
-    { name: 'SiMysql', Icon: SiMysql, label: 'MySQL' },
-    { name: 'SiMongodb', Icon: SiMongodb, label: 'MongoDB' },
-    { name: 'SiPostgresql', Icon: SiPostgresql, label: 'PostgreSQL' },
-    { name: 'SiHibernate', Icon: SiHibernate, label: 'Hibernate' },
-    { name: 'VscVscode', Icon: VscVscode, label: 'VS Code' },
-    { name: 'SiIntellijidea', Icon: SiIntellijidea, label: 'IntelliJ' },
-    { name: 'SiArduino', Icon: SiArduino, label: 'Arduino' },
-    { name: 'SiUnity', Icon: SiUnity, label: 'Unity' },
-    { name: 'FaFigma', Icon: FaFigma, label: 'Figma' },
-    { name: 'FaVideo', Icon: FaVideo, label: 'CapCut / Video' },
-    { name: 'FaGitAlt', Icon: FaGitAlt, label: 'Git' },
-    { name: 'SiPostman', Icon: SiPostman, label: 'Postman' },
-    { name: 'FaCode', Icon: FaCode, label: 'Code Default' },
-    { name: 'FaServer', Icon: FaServer, label: 'Server' },
-    { name: 'FaDatabase', Icon: FaDatabase, label: 'Database' }
-];
-
-// Preset Color Picker Options
-const PRESET_COLORS = [
-    { name: 'Teal', class: 'text-teal-500' },
-    { name: 'Blue', class: 'text-blue-500' },
-    { name: 'Emerald', class: 'text-emerald-500' },
-    { name: 'Amber', class: 'text-amber-500' },
-    { name: 'Red', class: 'text-red-500' },
-    { name: 'Purple', class: 'text-purple-500' },
-    { name: 'Cyan', class: 'text-cyan-400' },
-    { name: 'Orange', class: 'text-orange-500' },
-    { name: 'Pink', class: 'text-pink-500' },
-    { name: 'Indigo', class: 'text-indigo-500' }
-];
 
 const CATEGORY_OPTIONS = [
     'Web Based', 'Frontend', 'Backend', 'Mobile Dev',
@@ -71,18 +13,40 @@ const CATEGORY_OPTIONS = [
     'Management', 'Languages / Communication', 'Soft Skills'
 ];
 
-const DynamicIcon = ({ iconName, className }) => {
-    const found = AVAILABLE_ICONS.find(i => i.name === iconName);
-    const IconComp = found ? found.Icon : FaCode;
-    return <IconComp className={className} size={20} />;
+// Admin Panel එකේ Preview එකට පෙන්වීමට Category එක අනුව අදාළ Icon එක
+const getCategoryIcon = (categories = []) => {
+    const primary = categories[0] || 'Frontend';
+    switch (primary) {
+        case 'Frontend':
+        case 'Web Based':
+            return { Icon: FaCode, color: 'text-blue-500 bg-blue-100 dark:bg-blue-500/10' };
+        case 'Backend':
+            return { Icon: FaServer, color: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-500/10' };
+        case 'Database':
+            return { Icon: FaDatabase, color: 'text-amber-500 bg-amber-100 dark:bg-amber-500/10' };
+        case 'Mobile Dev':
+            return { Icon: FaMobileAlt, color: 'text-purple-500 bg-purple-100 dark:bg-purple-500/10' };
+        case 'Desktop App':
+            return { Icon: FaDesktop, color: 'text-indigo-500 bg-indigo-100 dark:bg-indigo-500/10' };
+        case 'AI & ML':
+            return { Icon: FaBrain, color: 'text-rose-500 bg-rose-100 dark:bg-rose-500/10' };
+        case 'Robotics & IoT':
+            return { Icon: FaRobot, color: 'text-teal-500 bg-teal-100 dark:bg-teal-500/10' };
+        case 'Management':
+            return { Icon: FaBriefcase, color: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/10' };
+        case 'Languages / Communication':
+            return { Icon: FaLanguage, color: 'text-pink-500 bg-pink-100 dark:bg-pink-500/10' };
+        case 'Soft Skills':
+            return { Icon: FaUsers, color: 'text-violet-500 bg-violet-100 dark:bg-violet-500/10' };
+        default:
+            return { Icon: FaTools, color: 'text-orange-500 bg-orange-100 dark:bg-orange-500/10' };
+    }
 };
 
 const initialFormState = {
     name: '',
     categories: ['Frontend'],
     proficiency: 85,
-    icon: 'FaCode',
-    color: 'text-teal-500',
     desc: ''
 };
 
@@ -132,8 +96,6 @@ const SkillsManagement = () => {
                 name: skill.name || '',
                 categories: Array.isArray(skill.categories) && skill.categories.length > 0 ? skill.categories : ['Frontend'],
                 proficiency: skill.proficiency ?? 85,
-                icon: skill.icon || 'FaCode',
-                color: skill.color || 'text-teal-500',
                 desc: skill.desc || ''
             });
         } else {
@@ -167,8 +129,6 @@ const SkillsManagement = () => {
             name: formData.name.trim(),
             categories: formData.categories,
             proficiency: formData.proficiency,
-            icon: formData.icon,
-            color: formData.color,
             desc: formData.desc.trim()
         };
 
@@ -230,7 +190,7 @@ const SkillsManagement = () => {
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Skills Management</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Select icons visually and manage technical skills effortlessly.
+                        Add, update, or remove technical, management, and language skills effortlessly.
                     </p>
                 </div>
                 
@@ -263,72 +223,76 @@ const SkillsManagement = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-                    {skills.map((skill) => (
-                        <div 
-                            key={skill._id} 
-                            className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
-                        >
-                            <div>
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-lg bg-teal-500/10 ${skill.color || 'text-teal-500'}`}>
-                                            <DynamicIcon iconName={skill.icon} />
+                    {skills.map((skill) => {
+                        const { Icon, color } = getCategoryIcon(skill.categories);
+
+                        return (
+                            <div 
+                                key={skill._id} 
+                                className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
+                            >
+                                <div>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2.5 rounded-lg ${color}`}>
+                                                <Icon size={20} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
+                                        
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <button 
+                                                onClick={() => openModal(skill)}
+                                                className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
+                                                title="Edit"
+                                            >
+                                                <FaEdit size={14} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(skill._id, skill.name)}
+                                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
+                                                title="Delete"
+                                            >
+                                                <FaTrash size={14} />
+                                            </button>
                                         </div>
                                     </div>
-                                    
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button 
-                                            onClick={() => openModal(skill)}
-                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
-                                            title="Edit"
-                                        >
-                                            <FaEdit size={14} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(skill._id, skill.name)}
-                                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
-                                            title="Delete"
-                                        >
-                                            <FaTrash size={14} />
-                                        </button>
+
+                                    <div className="flex flex-wrap gap-1.5 mb-3">
+                                        {skill.categories?.map((cat, i) => (
+                                            <span 
+                                                key={i}
+                                                className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
+                                            >
+                                                {cat}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    {skill.desc && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                                            {skill.desc}
+                                        </p>
+                                    )}
+                                </div>
+                                
+                                <div className="mt-2">
+                                    <div className="flex justify-between text-sm mb-1.5">
+                                        <span className="font-bold text-gray-700 dark:text-gray-300 text-xs">Proficiency</span>
+                                        <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">{skill.proficiency ?? 85}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700/50 rounded-full h-2 shadow-inner overflow-hidden">
+                                        <div 
+                                            className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.5)] transition-all duration-500" 
+                                            style={{ width: `${skill.proficiency ?? 85}%` }}
+                                        />
                                     </div>
                                 </div>
-
-                                <div className="flex flex-wrap gap-1.5 mb-3">
-                                    {skill.categories?.map((cat, i) => (
-                                        <span 
-                                            key={i}
-                                            className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
-                                        >
-                                            {cat}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {skill.desc && (
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-                                        {skill.desc}
-                                    </p>
-                                )}
                             </div>
-                            
-                            <div className="mt-2">
-                                <div className="flex justify-between text-sm mb-1.5">
-                                    <span className="font-bold text-gray-700 dark:text-gray-300 text-xs">Proficiency</span>
-                                    <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">{skill.proficiency ?? 85}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 dark:bg-gray-700/50 rounded-full h-2 shadow-inner overflow-hidden">
-                                    <div 
-                                        className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.5)] transition-all duration-500" 
-                                        style={{ width: `${skill.proficiency ?? 85}%` }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
 
@@ -356,61 +320,6 @@ const SkillsManagement = () => {
                                         placeholder="e.g., Unity Hub, Arduino IDE, CapCut" 
                                         className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                     />
-                                </div>
-
-                                {/* --- Visual Icon Picker --- */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Select Icon <span className="text-xs text-teal-500 font-normal">(Click to select)</span>
-                                    </label>
-                                    <div className="grid grid-cols-6 sm:grid-cols-7 gap-2 max-h-36 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl">
-                                        {AVAILABLE_ICONS.map((item) => {
-                                            const isSelected = formData.icon === item.name;
-                                            const IconComp = item.Icon;
-                                            return (
-                                                <button
-                                                    key={item.name}
-                                                    type="button"
-                                                    title={item.label}
-                                                    onClick={() => setFormData({ ...formData, icon: item.name })}
-                                                    className={`p-2.5 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
-                                                        isSelected 
-                                                            ? 'bg-teal-500 text-white shadow-md scale-105' 
-                                                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-teal-500/10 hover:text-teal-500 border border-gray-200 dark:border-gray-700'
-                                                    }`}
-                                                >
-                                                    <IconComp size={18} />
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* --- Visual Color Picker --- */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Select Icon Color
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {PRESET_COLORS.map((c) => {
-                                            const isSelected = formData.color === c.class;
-                                            return (
-                                                <button
-                                                    key={c.name}
-                                                    type="button"
-                                                    onClick={() => setFormData({ ...formData, color: c.class })}
-                                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 border cursor-pointer transition-all ${
-                                                        isSelected 
-                                                            ? 'bg-gray-800 text-white border-gray-800 dark:bg-white dark:text-gray-900 shadow-sm' 
-                                                            : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
-                                                    }`}
-                                                >
-                                                    <span className={`w-3 h-3 rounded-full ${c.class.replace('text-', 'bg-')}`}></span>
-                                                    {c.name}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
                                 </div>
                                 
                                 <div>
