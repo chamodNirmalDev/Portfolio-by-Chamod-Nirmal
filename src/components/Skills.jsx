@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython, 
-    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo, 
-    FaPaintBrush, FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools 
+import {
+    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython,
+    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo,
+    FaCode
 } from 'react-icons/fa';
 import {
-    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet, SiGraphql,
+    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet,
     SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
-    SiPostman, SiKotlin, SiFlutter, SiTensorflow, SiPytorch, SiOpencv,
-    SiElectron, SiRaspberrypi, SiSpringboot, SiIntellijidea, SiUnity,
-    SiMysql as SiWorkbench
+    SiPostman, SiKotlin, SiFlutter, SiSpringboot, SiIntellijidea, SiUnity,
+    SiNextdotjs, SiJest, SiCanva
 } from 'react-icons/si';
 import { VscVscode } from 'react-icons/vsc';
 import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
@@ -19,45 +17,71 @@ import { X, Loader2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-// Skill එකේ නමට අනුව ස්වයංක්‍රීයව Unique Icon එක සහ Color එක ලබා දීම
-const iconMap = {
-    'HTML5': { icon: FaHtml5, color: 'text-[#E34F26]' },
-    'CSS3': { icon: FaCss3Alt, color: 'text-[#1572B6]' },
-    'JavaScript': { icon: SiJavascript, color: 'text-[#F7DF1E]' },
-    'TypeScript': { icon: SiTypescript, color: 'text-[#3178C6]' },
-    'React JS': { icon: FaReact, color: 'text-[#61DAFB]' },
-    'React.js': { icon: FaReact, color: 'text-[#61DAFB]' },
-    'Tailwind CSS': { icon: SiTailwindcss, color: 'text-[#06B6D4]' },
-    'Bootstrap': { icon: FaBootstrap, color: 'text-[#7952B3]' },
-    'Java': { icon: FaJava, color: 'text-[#f89820]' },
-    'Spring Boot': { icon: SiSpringboot, color: 'text-[#6DB33F]' },
-    'C#': { icon: TbBrandCSharp, color: 'text-[#68217A]' },
-    '.NET Framework': { icon: SiDotnet, color: 'text-[#512BD4]' },
-    'Rust': { icon: FaRust, color: 'text-[#DEA584]' },
-    'Node JS': { icon: FaNodeJs, color: 'text-[#339933]' },
-    'Node.js': { icon: FaNodeJs, color: 'text-[#339933]' },
-    'Express JS': { icon: SiExpress, color: 'text-gray-400' },
-    'PHP': { icon: FaPhp, color: 'text-[#777BB4]' },
-    'Python': { icon: FaPython, color: 'text-[#3776AB]' },
-    'Android': { icon: FaAndroid, color: 'text-[#3DDC84]' },
-    'Flutter': { icon: SiFlutter, color: 'text-[#02569B]' },
-    'React Native': { icon: TbBrandReactNative, color: 'text-[#61DAFB]' },
-    'Kotlin': { icon: SiKotlin, color: 'text-[#7F52FF]' },
-    'MySQL': { icon: SiMysql, color: 'text-[#4479A1]' },
-    'MongoDB': { icon: SiMongodb, color: 'text-[#47A248]' },
-    'PostgreSQL': { icon: SiPostgresql, color: 'text-[#4169E1]' },
-    'Hibernate ORM': { icon: SiHibernate, color: 'text-[#59666C]' },
-    'C++ / ESP32': { icon: SiCplusplus, color: 'text-[#00599C]' },
-    'Arduino': { icon: SiArduino, color: 'text-[#00979D]' },
-    'VS Code': { icon: VscVscode, color: 'text-[#007ACC]' },
-    'IntelliJ IDEA': { icon: SiIntellijidea, color: 'text-[#FE315D]' },
-    'Arduino IDE': { icon: SiArduino, color: 'text-[#00979D]' },
-    'MySQL Workbench': { icon: SiWorkbench, color: 'text-[#4479A1]' },
-    'Unity Hub': { icon: SiUnity, color: 'text-white' },
-    'CapCut': { icon: FaVideo, color: 'text-white' },
-    'Figma': { icon: FaFigma, color: 'text-[#F24E1E]' },
-    'Git & GitHub': { icon: FaGitAlt, color: 'text-[#F05032]' },
-    'Postman': { icon: SiPostman, color: 'text-[#FF6C37]' }
+const DARK = 'text-gray-900 dark:text-white'; // light/dark දෙකටම පේන්න
+
+// [ නම් variations, icon, color ]
+// සටහන: දිගු/විශේෂ නම් (reactnative, springboot) සාමාන්‍ය ඒවාට (react, java) කලින් තියෙන්න ඕන
+const iconRules = [
+    [['html5', 'html'], FaHtml5, 'text-[#E34F26]'],
+    [['css3', 'css'], FaCss3Alt, 'text-[#1572B6]'],
+    [['javascript', 'js', 'es6'], SiJavascript, 'text-[#F7DF1E]'],
+    [['typescript', 'ts'], SiTypescript, 'text-[#3178C6]'],
+    [['reactnative'], TbBrandReactNative, 'text-[#61DAFB]'],
+    [['react', 'reactjs'], FaReact, 'text-[#61DAFB]'],
+    [['nextjs', 'next'], SiNextdotjs, DARK],
+    [['tailwindcss', 'tailwind'], SiTailwindcss, 'text-[#06B6D4]'],
+    [['bootstrap'], FaBootstrap, 'text-[#7952B3]'],
+    [['springboot', 'spring'], SiSpringboot, 'text-[#6DB33F]'],
+    [['hibernate', 'hibernateorm'], SiHibernate, 'text-[#59666C]'],
+    [['java', 'javase', 'javaee', 'jakartaee'], FaJava, 'text-[#f89820]'],
+    [['c#', 'csharp'], TbBrandCSharp, 'text-[#68217A]'],
+    [['.net', 'dotnet', '.netframework'], SiDotnet, 'text-[#512BD4]'],
+    [['rust'], FaRust, 'text-[#DEA584]'],
+    [['nodejs', 'node'], FaNodeJs, 'text-[#339933]'],
+    [['expressjs', 'express'], SiExpress, 'text-gray-500 dark:text-gray-300'],
+    [['php'], FaPhp, 'text-[#777BB4]'],
+    [['python'], FaPython, 'text-[#3776AB]'],
+    [['android'], FaAndroid, 'text-[#3DDC84]'],
+    [['flutter'], SiFlutter, 'text-[#02569B]'],
+    [['kotlin'], SiKotlin, 'text-[#7F52FF]'],
+    [['mysqlworkbench', 'mysql', 'sql'], SiMysql, 'text-[#4479A1]'],
+    [['mongodb', 'mongo'], SiMongodb, 'text-[#47A248]'],
+    [['postgresql', 'postgres'], SiPostgresql, 'text-[#4169E1]'],
+    [['c++', 'c++/esp32', 'esp32', 'cpp'], SiCplusplus, 'text-[#00599C]'],
+    [['arduino', 'arduinoide'], SiArduino, 'text-[#00979D]'],
+    [['vscode', 'visualstudiocode'], VscVscode, 'text-[#007ACC]'],
+    [['intellijidea', 'intellij'], SiIntellijidea, 'text-[#FE315D]'],
+    [['unity', 'unityhub'], SiUnity, DARK],
+    [['capcut'], FaVideo, DARK],
+    [['figma'], FaFigma, 'text-[#F24E1E]'],
+    [['canva'], SiCanva, 'text-[#00C4CC]'],
+    [['git', 'github', 'git&github', 'gitgithub'], FaGitAlt, 'text-[#F05032]'],
+    [['postman'], SiPostman, 'text-[#FF6C37]'],
+    [['jest', 'junit'], SiJest, 'text-[#C21325]'],
+];
+
+const normalize = (s = '') => s.toLowerCase().replace(/[^a-z0-9+#.]/g, '');
+
+const getIcon = (name) => {
+    const n = normalize(name);
+    const fallback = { icon: FaCode, color: 'text-teal-500' };
+
+    // 1) හරියටම match
+    for (const [keys, icon, color] of iconRules) {
+        if (keys.some(k => normalize(k) === n)) return { icon, color };
+    }
+
+    // 2) අඩංගු වෙන්නේ නම් (දිගම key එකට ප්‍රමුඛතාව: "javascript" > "java")
+    let best = null;
+    for (const [keys, icon, color] of iconRules) {
+        for (const k of keys) {
+            const nk = normalize(k);
+            if (nk.length >= 3 && n.includes(nk) && (!best || nk.length > best.len)) {
+                best = { icon, color, len: nk.length };
+            }
+        }
+    }
+    return best ? { icon: best.icon, color: best.color } : fallback;
 };
 
 const Skills = () => {
@@ -90,8 +114,7 @@ const Skills = () => {
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     const formatted = result.data.map(item => {
-                        // iconMap එකේ නම තියෙනවද බලලා අදාළ icon එක දෙන්න, නැත්නම් Default එකක් දෙන්න
-                        const matchedIcon = iconMap[item.name] || { icon: FaCode, color: 'text-teal-500' };
+                        const matchedIcon = getIcon(item.name);
                         return {
                             id: item._id,
                             name: item.name,
