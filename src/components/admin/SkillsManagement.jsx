@@ -2,12 +2,68 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
     FaPlus, FaEdit, FaTrash, FaTimes, FaSyncAlt, FaCheck,
     FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers 
+    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers,
+    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython, 
+    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo, 
+    FaPaintBrush 
 } from 'react-icons/fa';
-import * as FaIcons from 'react-icons/fa';
-import * as SiIcons from 'react-icons/si';
+import {
+    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet, SiGraphql,
+    SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
+    SiPostman, SiKotlin, SiFlutter, SiTensorflow, SiPytorch, SiOpencv,
+    SiElectron, SiRaspberrypi, SiSpringboot, SiIntellijidea, SiUnity
+} from 'react-icons/si';
+import { VscVscode } from 'react-icons/vsc';
+import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+// Available Icons for Visual Picker
+const AVAILABLE_ICONS = [
+    { name: 'FaReact', Icon: FaReact, label: 'React' },
+    { name: 'SiJavascript', Icon: SiJavascript, label: 'JavaScript' },
+    { name: 'SiTypescript', Icon: SiTypescript, label: 'TypeScript' },
+    { name: 'FaHtml5', Icon: FaHtml5, label: 'HTML5' },
+    { name: 'FaCss3Alt', Icon: FaCss3Alt, label: 'CSS3' },
+    { name: 'SiTailwindcss', Icon: SiTailwindcss, label: 'Tailwind' },
+    { name: 'FaNodeJs', Icon: FaNodeJs, label: 'Node.js' },
+    { name: 'SiExpress', Icon: SiExpress, label: 'Express' },
+    { name: 'FaJava', Icon: FaJava, label: 'Java' },
+    { name: 'SiSpringboot', Icon: SiSpringboot, label: 'Spring Boot' },
+    { name: 'FaPython', Icon: FaPython, label: 'Python' },
+    { name: 'FaPhp', Icon: FaPhp, label: 'PHP' },
+    { name: 'SiCplusplus', Icon: SiCplusplus, label: 'C++' },
+    { name: 'TbBrandCSharp', Icon: TbBrandCSharp, label: 'C#' },
+    { name: 'SiMysql', Icon: SiMysql, label: 'MySQL' },
+    { name: 'SiMongodb', Icon: SiMongodb, label: 'MongoDB' },
+    { name: 'SiPostgresql', Icon: SiPostgresql, label: 'PostgreSQL' },
+    { name: 'SiHibernate', Icon: SiHibernate, label: 'Hibernate' },
+    { name: 'VscVscode', Icon: VscVscode, label: 'VS Code' },
+    { name: 'SiIntellijidea', Icon: SiIntellijidea, label: 'IntelliJ' },
+    { name: 'SiArduino', Icon: SiArduino, label: 'Arduino' },
+    { name: 'SiUnity', Icon: SiUnity, label: 'Unity' },
+    { name: 'FaFigma', Icon: FaFigma, label: 'Figma' },
+    { name: 'FaVideo', Icon: FaVideo, label: 'CapCut / Video' },
+    { name: 'FaGitAlt', Icon: FaGitAlt, label: 'Git' },
+    { name: 'SiPostman', Icon: SiPostman, label: 'Postman' },
+    { name: 'FaCode', Icon: FaCode, label: 'Code Default' },
+    { name: 'FaServer', Icon: FaServer, label: 'Server' },
+    { name: 'FaDatabase', Icon: FaDatabase, label: 'Database' }
+];
+
+// Preset Color Picker Options
+const PRESET_COLORS = [
+    { name: 'Teal', class: 'text-teal-500' },
+    { name: 'Blue', class: 'text-blue-500' },
+    { name: 'Emerald', class: 'text-emerald-500' },
+    { name: 'Amber', class: 'text-amber-500' },
+    { name: 'Red', class: 'text-red-500' },
+    { name: 'Purple', class: 'text-purple-500' },
+    { name: 'Cyan', class: 'text-cyan-400' },
+    { name: 'Orange', class: 'text-orange-500' },
+    { name: 'Pink', class: 'text-pink-500' },
+    { name: 'Indigo', class: 'text-indigo-500' }
+];
 
 const CATEGORY_OPTIONS = [
     'Web Based', 'Frontend', 'Backend', 'Mobile Dev',
@@ -15,9 +71,10 @@ const CATEGORY_OPTIONS = [
     'Management', 'Languages / Communication', 'Soft Skills'
 ];
 
-const DynamicIcon = ({ iconName }) => {
-    const IconComponent = FaIcons[iconName] || SiIcons[iconName] || FaCode;
-    return <IconComponent size={20} />;
+const DynamicIcon = ({ iconName, className }) => {
+    const found = AVAILABLE_ICONS.find(i => i.name === iconName);
+    const IconComp = found ? found.Icon : FaCode;
+    return <IconComp className={className} size={20} />;
 };
 
 const initialFormState = {
@@ -110,8 +167,8 @@ const SkillsManagement = () => {
             name: formData.name.trim(),
             categories: formData.categories,
             proficiency: formData.proficiency,
-            icon: formData.icon.trim() || 'FaCode',
-            color: formData.color.trim() || 'text-teal-500',
+            icon: formData.icon,
+            color: formData.color,
             desc: formData.desc.trim()
         };
 
@@ -173,7 +230,7 @@ const SkillsManagement = () => {
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Skills Management</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Add, update, or remove technical, management, and language skills with unique icons.
+                        Select icons visually and manage technical skills effortlessly.
                     </p>
                 </div>
                 
@@ -219,7 +276,6 @@ const SkillsManagement = () => {
                                         </div>
                                         <div>
                                             <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
-                                            <span className="text-[10px] text-gray-400 font-mono">Icon: {skill.icon || 'FaCode'}</span>
                                         </div>
                                     </div>
                                     
@@ -297,34 +353,63 @@ const SkillsManagement = () => {
                                         required
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="e.g., React JS, Python, IntelliJ IDEA" 
+                                        placeholder="e.g., Unity Hub, Arduino IDE, CapCut" 
                                         className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon Name (React Icons)</label>
-                                        <input 
-                                            type="text" 
-                                            required
-                                            value={formData.icon}
-                                            onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                            placeholder="e.g., FaReact, SiPython" 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
-                                        <p className="text-[10px] text-gray-400 mt-1">From react-icons (Fa*, Si*, Tb*, Vsc*)</p>
+                                {/* --- Visual Icon Picker --- */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Select Icon <span className="text-xs text-teal-500 font-normal">(Click to select)</span>
+                                    </label>
+                                    <div className="grid grid-cols-6 sm:grid-cols-7 gap-2 max-h-36 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl">
+                                        {AVAILABLE_ICONS.map((item) => {
+                                            const isSelected = formData.icon === item.name;
+                                            const IconComp = item.Icon;
+                                            return (
+                                                <button
+                                                    key={item.name}
+                                                    type="button"
+                                                    title={item.label}
+                                                    onClick={() => setFormData({ ...formData, icon: item.name })}
+                                                    className={`p-2.5 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                                                        isSelected 
+                                                            ? 'bg-teal-500 text-white shadow-md scale-105' 
+                                                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-teal-500/10 hover:text-teal-500 border border-gray-200 dark:border-gray-700'
+                                                    }`}
+                                                >
+                                                    <IconComp size={18} />
+                                                </button>
+                                            );
+                                        })}
                                     </div>
+                                </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tailwind Color Class</label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.color}
-                                            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                            placeholder="e.g., text-[#61DAFB]" 
-                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
-                                        />
+                                {/* --- Visual Color Picker --- */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Select Icon Color
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {PRESET_COLORS.map((c) => {
+                                            const isSelected = formData.color === c.class;
+                                            return (
+                                                <button
+                                                    key={c.name}
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, color: c.class })}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 border cursor-pointer transition-all ${
+                                                        isSelected 
+                                                            ? 'bg-gray-800 text-white border-gray-800 dark:bg-white dark:text-gray-900 shadow-sm' 
+                                                            : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
+                                                    }`}
+                                                >
+                                                    <span className={`w-3 h-3 rounded-full ${c.class.replace('text-', 'bg-')}`}></span>
+                                                    {c.name}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                                 
