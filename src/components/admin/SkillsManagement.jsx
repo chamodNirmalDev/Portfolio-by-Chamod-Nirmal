@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
-    FaPlus, FaEdit, FaTrash, FaTimes, FaCode, FaServer, 
-    FaPaintBrush, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools, FaSyncAlt, FaCheck,
-    FaBriefcase, FaLanguage, FaUsers 
+    FaPlus, FaEdit, FaTrash, FaTimes, FaSyncAlt, FaCheck,
+    FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
+    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers 
 } from 'react-icons/fa';
+import * as FaIcons from 'react-icons/fa';
+import * as SiIcons from 'react-icons/si';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
@@ -14,39 +15,17 @@ const CATEGORY_OPTIONS = [
     'Management', 'Languages / Communication', 'Soft Skills'
 ];
 
-const getCategoryIcon = (categories = []) => {
-    const primary = categories[0] || 'Frontend';
-    switch (primary) {
-        case 'Frontend':
-        case 'Web Based':
-            return { Icon: FaCode, color: 'text-blue-500 bg-blue-100 dark:bg-blue-500/10' };
-        case 'Backend':
-            return { Icon: FaServer, color: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-500/10' };
-        case 'Database':
-            return { Icon: FaDatabase, color: 'text-amber-500 bg-amber-100 dark:bg-amber-500/10' };
-        case 'Mobile Dev':
-            return { Icon: FaMobileAlt, color: 'text-purple-500 bg-purple-100 dark:bg-purple-500/10' };
-        case 'Desktop App':
-            return { Icon: FaDesktop, color: 'text-indigo-500 bg-indigo-100 dark:bg-indigo-500/10' };
-        case 'AI & ML':
-            return { Icon: FaBrain, color: 'text-rose-500 bg-rose-100 dark:bg-rose-500/10' };
-        case 'Robotics & IoT':
-            return { Icon: FaRobot, color: 'text-teal-500 bg-teal-100 dark:bg-teal-500/10' };
-        case 'Management':
-            return { Icon: FaBriefcase, color: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/10' };
-        case 'Languages / Communication':
-            return { Icon: FaLanguage, color: 'text-pink-500 bg-pink-100 dark:bg-pink-500/10' };
-        case 'Soft Skills':
-            return { Icon: FaUsers, color: 'text-violet-500 bg-violet-100 dark:bg-violet-500/10' };
-        default:
-            return { Icon: FaTools, color: 'text-orange-500 bg-orange-100 dark:bg-orange-500/10' };
-    }
+const DynamicIcon = ({ iconName }) => {
+    const IconComponent = FaIcons[iconName] || SiIcons[iconName] || FaCode;
+    return <IconComponent size={20} />;
 };
 
 const initialFormState = {
     name: '',
     categories: ['Frontend'],
     proficiency: 85,
+    icon: 'FaCode',
+    color: 'text-teal-500',
     desc: ''
 };
 
@@ -96,6 +75,8 @@ const SkillsManagement = () => {
                 name: skill.name || '',
                 categories: Array.isArray(skill.categories) && skill.categories.length > 0 ? skill.categories : ['Frontend'],
                 proficiency: skill.proficiency ?? 85,
+                icon: skill.icon || 'FaCode',
+                color: skill.color || 'text-teal-500',
                 desc: skill.desc || ''
             });
         } else {
@@ -129,6 +110,8 @@ const SkillsManagement = () => {
             name: formData.name.trim(),
             categories: formData.categories,
             proficiency: formData.proficiency,
+            icon: formData.icon.trim() || 'FaCode',
+            color: formData.color.trim() || 'text-teal-500',
             desc: formData.desc.trim()
         };
 
@@ -190,7 +173,7 @@ const SkillsManagement = () => {
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Skills Management</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Add, update, or remove technical, management, and language skills.
+                        Add, update, or remove technical, management, and language skills with unique icons.
                     </p>
                 </div>
                 
@@ -206,7 +189,7 @@ const SkillsManagement = () => {
 
                     <button 
                         onClick={() => openModal()}
-                        className="flex items-center gap-2 bg-linear-to-r from-teal-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 cursor-pointer">
+                        className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 cursor-pointer">
                         <FaPlus size={14} />
                         <span>Add New Skill</span>
                     </button>
@@ -223,76 +206,73 @@ const SkillsManagement = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-                    {skills.map((skill) => {
-                        const { Icon, color } = getCategoryIcon(skill.categories);
-
-                        return (
-                            <div 
-                                key={skill._id} 
-                                className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
-                            >
-                                <div>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-lg ${color}`}>
-                                                <Icon size={20} />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
-                                            </div>
+                    {skills.map((skill) => (
+                        <div 
+                            key={skill._id} 
+                            className="relative backdrop-blur-md bg-white/40 dark:bg-black/20 border border-teal-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
+                        >
+                            <div>
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2.5 rounded-lg bg-teal-500/10 ${skill.color || 'text-teal-500'}`}>
+                                            <DynamicIcon iconName={skill.icon} />
                                         </div>
-                                        
-                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <button 
-                                                onClick={() => openModal(skill)}
-                                                className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
-                                                title="Edit"
-                                            >
-                                                <FaEdit size={14} />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(skill._id, skill.name)}
-                                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
-                                                title="Delete"
-                                            >
-                                                <FaTrash size={14} />
-                                            </button>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-800 dark:text-white">{skill.name}</h3>
+                                            <span className="text-[10px] text-gray-400 font-mono">Icon: {skill.icon || 'FaCode'}</span>
                                         </div>
                                     </div>
-
-                                    <div className="flex flex-wrap gap-1.5 mb-3">
-                                        {skill.categories?.map((cat, i) => (
-                                            <span 
-                                                key={i}
-                                                className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
-                                            >
-                                                {cat}
-                                            </span>
-                                        ))}
+                                    
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <button 
+                                            onClick={() => openModal(skill)}
+                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer" 
+                                            title="Edit"
+                                        >
+                                            <FaEdit size={14} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(skill._id, skill.name)}
+                                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer" 
+                                            title="Delete"
+                                        >
+                                            <FaTrash size={14} />
+                                        </button>
                                     </div>
-
-                                    {skill.desc && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-                                            {skill.desc}
-                                        </p>
-                                    )}
                                 </div>
-                                
-                                <div className="mt-2">
-                                    <div className="flex justify-between text-sm mb-1.5">
-                                        <span className="font-bold text-gray-700 dark:text-gray-300 text-xs">Proficiency</span>
-                                        <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">{skill.proficiency ?? 85}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-700/50 rounded-full h-2 shadow-inner overflow-hidden">
-                                        <div 
-                                            className="bg-linear-to-r from-teal-500 to-emerald-500 h-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.5)] transition-all duration-500" 
-                                            style={{ width: `${skill.proficiency ?? 85}%` }}
-                                        />
-                                    </div>
+
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                    {skill.categories?.map((cat, i) => (
+                                        <span 
+                                            key={i}
+                                            className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
+                                        >
+                                            {cat}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {skill.desc && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                                        {skill.desc}
+                                    </p>
+                                )}
+                            </div>
+                            
+                            <div className="mt-2">
+                                <div className="flex justify-between text-sm mb-1.5">
+                                    <span className="font-bold text-gray-700 dark:text-gray-300 text-xs">Proficiency</span>
+                                    <span className="font-bold text-teal-600 dark:text-teal-400 text-xs">{skill.proficiency ?? 85}%</span>
+                                </div>
+                                <div className="w-full bg-gray-200 dark:bg-gray-700/50 rounded-full h-2 shadow-inner overflow-hidden">
+                                    <div 
+                                        className="bg-gradient-to-r from-teal-500 to-emerald-500 h-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.5)] transition-all duration-500" 
+                                        style={{ width: `${skill.proficiency ?? 85}%` }}
+                                    />
                                 </div>
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
                 </div>
             )}
 
@@ -311,15 +291,41 @@ const SkillsManagement = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="p-6 space-y-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Skill / Diploma Name</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Skill / Tool Name</label>
                                     <input 
                                         type="text" 
                                         required
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="e.g., Human Resource Management, English Proficiency" 
+                                        placeholder="e.g., React JS, Python, IntelliJ IDEA" 
                                         className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm" 
                                     />
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon Name (React Icons)</label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            value={formData.icon}
+                                            onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                            placeholder="e.g., FaReact, SiPython" 
+                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
+                                        />
+                                        <p className="text-[10px] text-gray-400 mt-1">From react-icons (Fa*, Si*, Tb*, Vsc*)</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tailwind Color Class</label>
+                                        <input 
+                                            type="text" 
+                                            value={formData.color}
+                                            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                                            placeholder="e.g., text-[#61DAFB]" 
+                                            className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-white text-sm font-mono" 
+                                        />
+                                    </div>
                                 </div>
                                 
                                 <div>
@@ -378,7 +384,7 @@ const SkillsManagement = () => {
                             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
                                 <button 
                                     type="button"
-                                    onMouseDown={closeModal}
+                                    onClick={closeModal}
                                     className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors cursor-pointer"
                                 >
                                     Cancel
@@ -386,7 +392,7 @@ const SkillsManagement = () => {
                                 <button 
                                     type="submit"
                                     disabled={isSaving}
-                                    className="px-5 py-2.5 bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
+                                    className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
                                 >
                                     {isSaving ? 'Saving...' : editingSkillId ? 'Update Skill' : 'Save Skill'}
                                 </button>

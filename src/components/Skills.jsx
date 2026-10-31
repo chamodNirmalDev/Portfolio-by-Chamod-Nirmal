@@ -1,41 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers 
-} from 'react-icons/fa';
-import { X, Loader2 } from 'lucide-react';
+import * as FaIcons from 'react-icons/fa';
+import * as SiIcons from 'react-icons/si';
+import * as VscIcons from 'react-icons/vsc';
+import * as TbIcons from 'react-icons/tb';
+import { X, Loader2, Code } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-// Category එක මත පදනම්ව ස්වයංක්‍රීයව Icon එක සහ Color එක තෝරා ගැනීම
-const getCategoryIcon = (categories = []) => {
-    const primary = categories[0] || 'Frontend';
-    switch (primary) {
-        case 'Frontend':
-        case 'Web Based':
-            return { icon: FaCode, color: 'text-blue-500' };
-        case 'Backend':
-            return { icon: FaServer, color: 'text-emerald-500' };
-        case 'Database':
-            return { icon: FaDatabase, color: 'text-amber-500' };
-        case 'Mobile Dev':
-            return { icon: FaMobileAlt, color: 'text-purple-500' };
-        case 'Desktop App':
-            return { icon: FaDesktop, color: 'text-indigo-500' };
-        case 'AI & ML':
-            return { icon: FaBrain, color: 'text-rose-500' };
-        case 'Robotics & IoT':
-            return { icon: FaRobot, color: 'text-teal-500' };
-        case 'Management':
-            return { icon: FaBriefcase, color: 'text-cyan-500' };
-        case 'Languages / Communication':
-            return { icon: FaLanguage, color: 'text-pink-500' };
-        case 'Soft Skills':
-            return { icon: FaUsers, color: 'text-violet-500' };
-        default:
-            return { icon: FaTools, color: 'text-orange-500' };
-    }
+// Database එකෙන් එන Icon නමට (String) අනුව අදාළ Icon Component එක තෝරා ගැනීම
+const DynamicIcon = ({ iconName, className }) => {
+    const IconComponent = FaIcons[iconName] || SiIcons[iconName] || VscIcons[iconName] || TbIcons[iconName] || Code;
+    return <IconComponent className={className} />;
 };
 
 const Skills = () => {
@@ -68,13 +44,12 @@ const Skills = () => {
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     const formatted = result.data.map(item => {
-                        const { icon, color } = getCategoryIcon(item.categories);
                         return {
                             id: item._id,
                             name: item.name,
                             categories: item.categories || ['Tools'],
-                            icon: icon,
-                            color: color,
+                            iconName: item.icon || 'FaCode',
+                            color: item.color || 'text-teal-500',
                             proficiency: item.proficiency || 85,
                             desc: item.desc || 'Proficient in modern architecture and hands-on software design.'
                         };
@@ -189,7 +164,7 @@ const Skills = () => {
                                         className="flex flex-col items-center justify-center p-4 sm:p-6 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-gray-200 dark:border-zinc-800 rounded-2xl hover:shadow-xl hover:shadow-teal-500/10 hover:border-teal-500/30 transition-all duration-300 group cursor-pointer"
                                     >
                                         <div className={`text-4xl sm:text-5xl mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${skill.color} drop-shadow-[0_0_12px_currentColor]`}>
-                                            <skill.icon />
+                                            <DynamicIcon iconName={skill.iconName} />
                                         </div>
                                         <h3 className="text-xs sm:text-base font-semibold dark:text-gray-200 text-gray-800 text-center group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                                             {skill.name}
@@ -230,7 +205,7 @@ const Skills = () => {
                             </button>
 
                             <div className={`text-6xl sm:text-7xl mb-4 sm:mb-6 ${selectedSkill.color} drop-shadow-[0_0_20px_currentColor]`}>
-                                <selectedSkill.icon />
+                                <DynamicIcon iconName={selectedSkill.iconName} />
                             </div>
 
                             <h3 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900 mb-3">
