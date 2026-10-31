@@ -1,73 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython, 
-    FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo, 
-    FaPaintBrush, FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
-    FaBrain, FaRobot, FaTools 
+    FaCode, FaServer, FaDatabase, FaMobileAlt, FaDesktop, 
+    FaBrain, FaRobot, FaTools, FaBriefcase, FaLanguage, FaUsers 
 } from 'react-icons/fa';
-import {
-    SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet, SiGraphql,
-    SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
-    SiPostman, SiKotlin, SiFlutter, SiTensorflow, SiPytorch, SiOpencv,
-    SiElectron, SiRaspberrypi, SiSpringboot, SiIntellijidea,
-    SiMysql as SiWorkbench
-} from 'react-icons/si';
-import { VscVscode } from 'react-icons/vsc';
-import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
 import { X, Loader2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-// නමට අනුව අදාළ Icon එක සහ Color එක හඳුනාගැනීම
-const iconMap = {
-    'HTML5': { icon: FaHtml5, color: 'text-[#E34F26]' },
-    'CSS3': { icon: FaCss3Alt, color: 'text-[#1572B6]' },
-    'JavaScript': { icon: SiJavascript, color: 'text-[#F7DF1E]' },
-    'TypeScript': { icon: SiTypescript, color: 'text-[#3178C6]' },
-    'React JS': { icon: FaReact, color: 'text-[#61DAFB]' },
-    'React.js': { icon: FaReact, color: 'text-[#61DAFB]' },
-    'Tailwind CSS': { icon: SiTailwindcss, color: 'text-[#06B6D4]' },
-    'Bootstrap': { icon: FaBootstrap, color: 'text-[#7952B3]' },
-    'Java': { icon: FaJava, color: 'text-[#f89820]' },
-    'Spring Boot': { icon: SiSpringboot, color: 'text-[#6DB33F]' },
-    'C#': { icon: TbBrandCSharp, color: 'text-[#68217A]' },
-    '.NET Framework': { icon: SiDotnet, color: 'text-[#512BD4]' },
-    'Rust': { icon: FaRust, color: 'text-[#DEA584]' },
-    'Node JS': { icon: FaNodeJs, color: 'text-[#339933]' },
-    'Node.js': { icon: FaNodeJs, color: 'text-[#339933]' },
-    'Express JS': { icon: SiExpress, color: 'text-gray-600 dark:text-gray-200' },
-    'PHP': { icon: FaPhp, color: 'text-[#777BB4]' },
-    'GraphQL': { icon: SiGraphql, color: 'text-[#E10098]' },
-    'Python': { icon: FaPython, color: 'text-[#3776AB]' },
-    'TensorFlow': { icon: SiTensorflow, color: 'text-[#FF6F00]' },
-    'PyTorch': { icon: SiPytorch, color: 'text-[#EE4C2C]' },
-    'OpenCV': { icon: SiOpencv, color: 'text-[#5C3EE8]' },
-    'Android': { icon: FaAndroid, color: 'text-[#3DDC84]' },
-    'Flutter': { icon: SiFlutter, color: 'text-[#02569B]' },
-    'React Native': { icon: TbBrandReactNative, color: 'text-[#61DAFB]' },
-    'Kotlin': { icon: SiKotlin, color: 'text-[#7F52FF]' },
-    'Electron JS': { icon: SiElectron, color: 'text-[#47848F]' },
-    'MySQL': { icon: SiMysql, color: 'text-[#4479A1]' },
-    'MongoDB': { icon: SiMongodb, color: 'text-[#47A248]' },
-    'PostgreSQL': { icon: SiPostgresql, color: 'text-[#4169E1]' },
-    'Hibernate ORM': { icon: SiHibernate, color: 'text-[#59666C]' },
-    'C++ / ESP32': { icon: SiCplusplus, color: 'text-[#00599C]' },
-    'Arduino': { icon: SiArduino, color: 'text-[#00979D]' },
-    'Raspberry Pi': { icon: SiRaspberrypi, color: 'text-[#A22846]' },
-    'VS Code': { icon: VscVscode, color: 'text-[#007ACC]' },
-    'IntelliJ IDEA': { icon: SiIntellijidea, color: 'text-[#FE315D]' },
-    'Arduino IDE': { icon: SiArduino, color: 'text-[#00979D]' },
-    'MySQL Workbench': { icon: SiWorkbench, color: 'text-[#4479A1]' },
-    'Figma': { icon: FaFigma, color: 'text-[#F24E1E]' },
-    'Canva': { icon: FaPaintBrush, color: 'text-[#00C4CC]' },
-    'CapCut': { icon: FaVideo, color: 'text-[#ffffff]' },
-    'Git & GitHub': { icon: FaGitAlt, color: 'text-[#F05032]' },
-    'Postman': { icon: SiPostman, color: 'text-[#FF6C37]' }
+// Category එක මත පදනම්ව ස්වයංක්‍රීයව Icon එක සහ Color එක තෝරා ගැනීම
+const getCategoryIcon = (categories = []) => {
+    const primary = categories[0] || 'Frontend';
+    switch (primary) {
+        case 'Frontend':
+        case 'Web Based':
+            return { icon: FaCode, color: 'text-blue-500' };
+        case 'Backend':
+            return { icon: FaServer, color: 'text-emerald-500' };
+        case 'Database':
+            return { icon: FaDatabase, color: 'text-amber-500' };
+        case 'Mobile Dev':
+            return { icon: FaMobileAlt, color: 'text-purple-500' };
+        case 'Desktop App':
+            return { icon: FaDesktop, color: 'text-indigo-500' };
+        case 'AI & ML':
+            return { icon: FaBrain, color: 'text-rose-500' };
+        case 'Robotics & IoT':
+            return { icon: FaRobot, color: 'text-teal-500' };
+        case 'Management':
+            return { icon: FaBriefcase, color: 'text-cyan-500' };
+        case 'Languages / Communication':
+            return { icon: FaLanguage, color: 'text-pink-500' };
+        case 'Soft Skills':
+            return { icon: FaUsers, color: 'text-violet-500' };
+        default:
+            return { icon: FaTools, color: 'text-orange-500' };
+    }
 };
 
 const Skills = () => {
-const categories = [
+    const categories = [
         'All',
         'Web Based',
         'Frontend',
@@ -96,13 +68,13 @@ const categories = [
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     const formatted = result.data.map(item => {
-                        const iconData = iconMap[item.name] || { icon: FaCode, color: 'text-teal-500' };
+                        const { icon, color } = getCategoryIcon(item.categories);
                         return {
                             id: item._id,
                             name: item.name,
                             categories: item.categories || ['Tools'],
-                            icon: iconData.icon,
-                            color: iconData.color,
+                            icon: icon,
+                            color: color,
                             proficiency: item.proficiency || 85,
                             desc: item.desc || 'Proficient in modern architecture and hands-on software design.'
                         };
