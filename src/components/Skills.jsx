@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython,
     FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo,
-    FaCode, FaTasks, FaPaintBrush, FaDatabase, FaBug
+    FaCode, FaTasks, FaPaintBrush, FaDatabase, FaBug, FaRobot
 } from 'react-icons/fa';
 import {
     SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet,
@@ -62,6 +62,7 @@ const iconRules = [
     [['uiux', 'uiuxdesign', 'uidesign'], FaPaintBrush, 'text-pink-500'],
     [['databasearchitecture', 'database'], FaDatabase, 'text-sky-500'],
     [['qualityassurance', 'qualityassuranceqa'], FaBug, 'text-orange-500'],
+    [['basicroboticsmodels', 'robotics' , 'robot'], FaRobot, 'text-cyan-500'],
 ];
 
 const normalize = (s = '') => s.toLowerCase().replace(/[^a-z0-9+#.]/g, '');
