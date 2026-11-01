@@ -9,7 +9,7 @@ import {
     SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet,
     SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
     SiPostman, SiKotlin, SiFlutter, SiSpringboot, SiIntellijidea, SiUnity,
-    SiNextdotjs, SiJest, SiCanva, SiApachenetbeanside
+    SiNextdotjs, SiJest
 } from 'react-icons/si';
 import { VscVscode } from 'react-icons/vsc';
 import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
@@ -50,11 +50,11 @@ const iconRules = [
     [['arduino', 'arduinoide'], SiArduino, 'text-[#00979D]'],
     [['vscode', 'visualstudiocode'], VscVscode, 'text-[#007ACC]'],
     [['intellijidea', 'intellij'], SiIntellijidea, 'text-[#FE315D]'],
-    [['apachenetbeans', 'netbeans'], SiApachenetbeanside, 'text-[#1B6AC6]'],
+    [['apachenetbeans', 'netbeans'], FaJava, 'text-[#1B6AC6]'],
     [['unity', 'unityhub'], SiUnity, DARK],
     [['capcut'], FaVideo, DARK],
     [['figma'], FaFigma, 'text-[#F24E1E]'],
-    [['canva'], SiCanva, 'text-[#00C4CC]'],
+    [['canva'], FaPaintBrush, 'text-[#00C4CC]'],
     [['git', 'github', 'git&github', 'gitgithub'], FaGitAlt, 'text-[#F05032]'],
     [['postman'], SiPostman, 'text-[#FF6C37]'],
     [['jest', 'junit'], SiJest, 'text-[#C21325]'],
