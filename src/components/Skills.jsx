@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     FaHtml5, FaCss3Alt, FaReact, FaBootstrap, FaJava, FaPython,
     FaPhp, FaNodeJs, FaGitAlt, FaRust, FaAndroid, FaFigma, FaVideo,
-    FaCode
+    FaCode, FaTasks, FaPaintBrush, FaDatabase, FaBug
 } from 'react-icons/fa';
 import {
     SiJavascript, SiTypescript, SiTailwindcss, SiExpress, SiDotnet,
     SiMysql, SiMongodb, SiHibernate, SiPostgresql, SiArduino, SiCplusplus,
     SiPostman, SiKotlin, SiFlutter, SiSpringboot, SiIntellijidea, SiUnity,
-    SiNextdotjs, SiJest, SiCanva
+    SiNextdotjs, SiJest, SiCanva, SiApachenetbeanside
 } from 'react-icons/si';
 import { VscVscode } from 'react-icons/vsc';
 import { TbBrandReactNative, TbBrandCSharp } from 'react-icons/tb';
@@ -20,7 +20,6 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const DARK = 'text-gray-900 dark:text-white'; // light/dark දෙකටම පේන්න
 
 // [ නම් variations, icon, color ]
-// සටහන: දිගු/විශේෂ නම් (reactnative, springboot) සාමාන්‍ය ඒවාට (react, java) කලින් තියෙන්න ඕන
 const iconRules = [
     [['html5', 'html'], FaHtml5, 'text-[#E34F26]'],
     [['css3', 'css'], FaCss3Alt, 'text-[#1572B6]'],
@@ -51,6 +50,7 @@ const iconRules = [
     [['arduino', 'arduinoide'], SiArduino, 'text-[#00979D]'],
     [['vscode', 'visualstudiocode'], VscVscode, 'text-[#007ACC]'],
     [['intellijidea', 'intellij'], SiIntellijidea, 'text-[#FE315D]'],
+    [['apachenetbeans', 'netbeans'], SiApachenetbeanside, 'text-[#1B6AC6]'],
     [['unity', 'unityhub'], SiUnity, DARK],
     [['capcut'], FaVideo, DARK],
     [['figma'], FaFigma, 'text-[#F24E1E]'],
@@ -58,6 +58,10 @@ const iconRules = [
     [['git', 'github', 'git&github', 'gitgithub'], FaGitAlt, 'text-[#F05032]'],
     [['postman'], SiPostman, 'text-[#FF6C37]'],
     [['jest', 'junit'], SiJest, 'text-[#C21325]'],
+    [['projectmanagement', 'management'], FaTasks, 'text-teal-500'],
+    [['uiux', 'uiuxdesign', 'uidesign'], FaPaintBrush, 'text-pink-500'],
+    [['databasearchitecture', 'database'], FaDatabase, 'text-sky-500'],
+    [['qualityassurance', 'qualityassuranceqa'], FaBug, 'text-orange-500'],
 ];
 
 const normalize = (s = '') => s.toLowerCase().replace(/[^a-z0-9+#.]/g, '');
@@ -71,7 +75,7 @@ const getIcon = (name) => {
         if (keys.some(k => normalize(k) === n)) return { icon, color };
     }
 
-    // 2) අඩංගු වෙන්නේ නම් (දිගම key එකට ප්‍රමුඛතාව: "javascript" > "java")
+    // 2) අඩංගු වෙන්නේ නම් (දිගම key එකට ප්‍රමුඛතාව)
     let best = null;
     for (const [keys, icon, color] of iconRules) {
         for (const k of keys) {
